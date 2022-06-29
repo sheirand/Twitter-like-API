@@ -5,4 +5,4 @@ from user import models
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
-        fields = "__all__"
+        fields = ["id", "email", "password", "role", "image_path", "is_blocked", "blocked_to"]
