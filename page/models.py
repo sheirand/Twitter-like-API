@@ -8,6 +8,9 @@ from user.models import User
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Page(models.Model):
     uniq_id = models.UUIDField(_("uuid"), default=uuid.uuid4, editable=False, unique=True)
@@ -22,6 +25,9 @@ class Page(models.Model):
     follow_requests = models.ManyToManyField(User, related_name='requests')
     unblock_date = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return self.title
+
 
 class Post(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
@@ -29,3 +35,4 @@ class Post(models.Model):
     reply_to = models.ForeignKey(Page, on_delete=models.SET_NULL, null=True, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
