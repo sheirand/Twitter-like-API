@@ -16,12 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+
+from page.views import PageAPIView, PostAPIView
 from user.views import UserAPIView
 
 router = routers.DefaultRouter()
 router.register('user', UserAPIView)
+router.register('pages', PageAPIView)
+router_post = routers.DefaultRouter()
+router_post.register('post', PostAPIView)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
+    path('api/v1/pages/<int:pk>/', include(router_post.urls)),
 ]
-
