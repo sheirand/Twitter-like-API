@@ -18,7 +18,7 @@ from django.urls import path, include
 from rest_framework import routers
 
 from page.views import PageAPIView, PostAPIView
-from user.views import UserAPIView
+from user.views import UserAPIView, UserLoginAPIView, UserLogoutAPIView, UserProfileAPIView
 
 router = routers.DefaultRouter()
 router.register('user', UserAPIView)
@@ -28,6 +28,11 @@ router_post.register('post', PostAPIView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
     path('api/v1/pages/<int:pk>/', include(router_post.urls)),
+    path('api/v1/user/login/', UserLoginAPIView.as_view()),
+    path('api/v1/user/logout/', UserLogoutAPIView.as_view()),
+    path('api/v1/user/profile/', UserProfileAPIView.as_view({'get': 'list',
+                                                             'put': 'update',
+                                                             'delete': 'destroy'})),
+    path('api/v1/', include(router.urls)),
 ]

@@ -32,7 +32,9 @@ class Page(models.Model):
 class Post(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
     content = models.CharField(max_length=255)
+    liked_by = models.ManyToManyField(User, related_name='likes')
     reply_to = models.ForeignKey(Page, on_delete=models.SET_NULL, null=True, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='posts')
     updated_at = models.DateTimeField(auto_now=True)
 
