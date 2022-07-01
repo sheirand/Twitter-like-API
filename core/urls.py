@@ -16,15 +16,29 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from page.views import PageAPIView, PostAPIView
 from user.views import UserAPIView, UserLoginAPIView, UserLogoutAPIView, UserProfileAPIView
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Support API",
+        default_version='v1',
+        description="API for Tech Support Sevice",
+        contact=openapi.Contact(email="eugene.osakovich@gmail.com"),
+        license=openapi.License(name="Test License"),
+    ),
+    public=True,
+#   permission_classes=(permissions.AllowAny,),
+)
 
 router = routers.DefaultRouter()
 router.register('user', UserAPIView)
 router.register('pages', PageAPIView)
 router_post = routers.DefaultRouter()
 router_post.register('post', PostAPIView)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,4 +49,5 @@ urlpatterns = [
                                                              'put': 'update',
                                                              'delete': 'destroy'})),
     path('api/v1/', include(router.urls)),
+    path('schema/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-innotter-api'),
 ]
