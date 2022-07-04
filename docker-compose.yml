@@ -6,10 +6,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - /data/postgres:/var/lib/postgresql/data/
+    env_file:
+      - .env
 volumes:
   postgres_data:
