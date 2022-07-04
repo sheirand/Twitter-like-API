@@ -34,18 +34,27 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split()
 
 # Application definition
 
-INSTALLED_APPS = [
+CORE_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
     'rest_framework',
+    'drf_yasg',
+]
+
+LOCAL_APPS = [
     'user.apps.UserConfig',
     'page.apps.PageConfig',
-    'drf_yasg'
 ]
+
+INSTALLED_APPS = CORE_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
