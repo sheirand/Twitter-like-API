@@ -2,17 +2,18 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Support API",
+        title="Innotter API",
         default_version='v1',
-        description="API for Tech Support Sevice",
+        description="Innotter will become bigger then twitter one day",
         contact=openapi.Contact(email="eugene.osakovich@gmail.com"),
         license=openapi.License(name="Test License"),
     ),
     public=True,
-#   permission_classes=(permissions.AllowAny,),
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [

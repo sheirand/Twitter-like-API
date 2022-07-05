@@ -2,6 +2,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, views, exceptions
 from rest_framework.response import Response
 from rest_framework import mixins
+from rest_framework.permissions import IsAuthenticated
 
 from user import services
 from user.models import User
@@ -47,3 +48,4 @@ class UserProfileAPIView(mixins.ListModelMixin,
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
