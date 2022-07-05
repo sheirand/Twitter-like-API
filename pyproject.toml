@@ -7,6 +7,11 @@ authors = ["sheirand <eugene.osakovich@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 Django = "^4.0.5"
+psycopg2 = "^2.9.3"
+djangorestframework = "^3.13.1"
+drf-yasg = "^1.20.0"
+pip = "^22.1.2"
+python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 
