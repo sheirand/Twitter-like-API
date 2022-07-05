@@ -169,6 +169,20 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pyjwt"
+version = "2.4.0"
+description = "JSON Web Token implementation in Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+crypto = ["cryptography (>=3.3.1)"]
+dev = ["sphinx", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.3.1)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "mypy", "pre-commit"]
+docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
+tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -279,7 +293,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "948de1727ecebb82f686c0b3b1987ec6a4fd7bd1343ce18678508a3b3ae565d1"
+content-hash = "5191888c190878ec17cae7c40f453553b78d145764ab8b98263817aeadfabd8e"
 
 [metadata.files]
 asgiref = [
@@ -388,6 +402,10 @@ psycopg2 = [
     {file = "psycopg2-2.9.3-cp39-cp39-win32.whl", hash = "sha256:8cf3878353cc04b053822896bc4922b194792df9df2f1ad8da01fb3043602126"},
     {file = "psycopg2-2.9.3-cp39-cp39-win_amd64.whl", hash = "sha256:06f32425949bd5fe8f625c49f17ebb9784e1e4fe928b7cce72edc36fb68e4c0c"},
     {file = "psycopg2-2.9.3.tar.gz", hash = "sha256:8e841d1bf3434da985cc5ef13e6f75c8981ced601fd70cc6bf33351b91562981"},
+]
+pyjwt = [
+    {file = "PyJWT-2.4.0-py3-none-any.whl", hash = "sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf"},
+    {file = "PyJWT-2.4.0.tar.gz", hash = "sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},

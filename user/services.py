@@ -1,3 +1,7 @@
+import datetime
+import jwt
+
+from django.conf import settings
 from django.contrib.auth.models import UserManager
 from user.choises import Roles
 
@@ -35,3 +39,21 @@ class CustomUserManager(UserManager):
         user.is_superuser = True
         user.save()
         return user
+
+
+def create_jwt_token(user_id: int, user_email: str) -> str:
+    payload = dict(
+        id=user_id,
+        email=user_email,
+        iat=datetime.datetime.utcnow(),
+        exp=datetime.datetime.utcnow() + datetime.timedelta(minutes=20)
+    )
+    token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm="HS256")
+
+    return token
+
+
+REQUIRED_FIELDS = {
+    "email": "This field is required",
+    "password": "This field is required"
+}
