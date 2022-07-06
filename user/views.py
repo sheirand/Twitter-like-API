@@ -9,6 +9,7 @@ from user.serializers import UserSerializer, UserCredentialsSerializer, UserFull
 
 
 class UserAPIView(viewsets.ModelViewSet):
+    """API endpoint for User model"""
     queryset = User.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ("email",)
@@ -32,6 +33,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
 
 class UserLoginAPIView(views.APIView):
+    """API endpoint to obtain JWT"""
     @swagger_auto_schema(request_body=UserCredentialsSerializer,
                          operation_description="Returns JWT if credentials were provided",
                          responses={200: "Success. Returns JSON: {\"jwt:\" \"token\"}",
