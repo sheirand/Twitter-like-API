@@ -139,10 +139,13 @@ AUTH_USER_MODEL = "user.User"
 
 SWAGGER_SETTINGS = {
    'SECURITY_DEFINITIONS': {
-      'jwt-Auth': {
+       'basic': {
+        'type': 'basic'
+        },
+       'jwt-Auth': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
-      }
+       }
    }
 }

@@ -5,12 +5,19 @@ from rest_framework.response import Response
 from user import services
 from user.models import User
 from user.permissions import IsOwnerOrAdmin
-from user.serializers import UserSerializer, UserLoginSerializer
+from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer
 
 
 class UserAPIView(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCredentialsSerializer
+        else:
+            if self.request.user.is_superuser:
+                return UserFullSerializer
+            return UserSerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -23,7 +30,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
 
 class UserLoginAPIView(views.APIView):
-    @swagger_auto_schema(request_body=UserLoginSerializer,
+    @swagger_auto_schema(request_body=UserCredentialsSerializer,
                          operation_description="Returns JWT if credentials were provided",
                          responses={200: "Success. Returns JSON: {\"jwt:\" \"token\"}",
                                     403: "Forbidden. Invalid credentials"}
