@@ -1,5 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, views, exceptions, permissions
+from rest_framework import viewsets, views, exceptions, permissions, filters
 from rest_framework.response import Response
 
 from user import services
@@ -10,6 +10,8 @@ from user.serializers import UserSerializer, UserCredentialsSerializer, UserFull
 
 class UserAPIView(viewsets.ModelViewSet):
     queryset = User.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("email",)
 
     def get_serializer_class(self):
         if self.action == 'create':
