@@ -1,17 +1,25 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, views, exceptions
+from rest_framework import viewsets, views, exceptions, permissions
 from rest_framework.response import Response
-from rest_framework import mixins
-from rest_framework.permissions import IsAuthenticated
 
 from user import services
 from user.models import User
+from user.permissions import IsOwnerOrAdmin
 from user.serializers import UserSerializer, UserLoginSerializer
 
 
 class UserAPIView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = (permissions.IsAdminUser,)
+        elif self.action == 'create':
+            permission_classes = (permissions.AllowAny,)
+        else:
+            permission_classes = (IsOwnerOrAdmin,)
+        return [permission() for permission in permission_classes]
 
 
 class UserLoginAPIView(views.APIView):
@@ -39,13 +47,3 @@ class UserLoginAPIView(views.APIView):
         resp = Response({"jwt_token": token}, status=200)
 
         return resp
-
-
-class UserProfileAPIView(mixins.ListModelMixin,
-                         mixins.UpdateModelMixin,
-                         mixins.DestroyModelMixin,
-                         viewsets.GenericViewSet):
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
