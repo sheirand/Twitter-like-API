@@ -1,47 +1,16 @@
 import datetime
+import traceback
+
 import jwt
 
 from django.conf import settings
-from django.contrib.auth.models import UserManager
-from user.choises import Roles
-
-
-class CustomUserManager(UserManager):
-    def create_user(self, email: str, password: str, role: str = Roles.USER) -> "User":
-        if not email:
-            raise ValueError("email is required")
-        if not password:
-            raise ValueError("password is required")
-        user = self.model(email=self.normalize_email(email))
-        user.set_password(password)
-        user.is_active = True
-        user.role = role
-        if user.role == Roles.MODERATOR:
-            user.is_staff = True
-            user.is_superuser = False
-            user.save()
-            return user
-        user.is_staff = False
-        user.is_superuser = False
-        user.save()
-        return user
-
-    def create_superuser(self, email: str, password: str) -> "User":
-        if not email:
-            raise ValueError("email is required")
-        if not password:
-            raise ValueError("password is required")
-        user = self.model(email=self.normalize_email(email))
-        user.set_password(password)
-        user.is_active = True
-        user.role = Roles.ADMIN
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        return user
+from django.contrib.auth.middleware import get_user
+from django.contrib.auth.models import AnonymousUser
+from user.models import User
 
 
 def create_jwt_token(user_id: int, user_email: str) -> str:
+    """Service for creating jwt"""
     payload = dict(
         id=user_id,
         email=user_email,
@@ -53,7 +22,27 @@ def create_jwt_token(user_id: int, user_email: str) -> str:
     return token
 
 
-REQUIRED_FIELDS = {
-    "email": "This field is required",
-    "password": "This field is required"
-}
+def get_jwt_user(request) -> "User":
+    """Service for get user by jwt in request headers"""
+    user_jwt = get_user(request)
+    if user_jwt.is_authenticated:
+        return user_jwt
+
+    token = request.headers.get('Authorization', None)
+    user_jwt = AnonymousUser()
+
+    if token is not None:
+        try:
+            user_jwt = jwt.decode(
+                token,
+                settings.JWT_SECRET_KEY,
+                algorithms=['HS256']
+            )
+            user_jwt = User.objects.get(
+                id=user_jwt['id']
+            )
+
+        except Exception as e:
+            traceback.print_exc()
+
+    return user_jwt

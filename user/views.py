@@ -43,7 +43,8 @@ class UserLoginAPIView(views.APIView):
         email = request.data.get("email")
         password = request.data.get("password")
         if not email or not password:
-            raise exceptions.ValidationError(detail=services.REQUIRED_FIELDS)
+            raise exceptions.ValidationError(detail={"email": "email field is required",
+                                                     "password": "password field is required"})
 
         user = User.objects.filter(email=email).first()
 
