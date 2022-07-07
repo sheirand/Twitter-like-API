@@ -6,7 +6,7 @@ from user.views import UserAPIView, UserLoginAPIView
 
 router = routers.DefaultRouter()
 router.register('user', UserAPIView)
-router.register('pages', PageAPIView)
+router.register('pages', PageAPIView, basename="Pages")
 router_post = routers.DefaultRouter()
 router_post.register('post', PostAPIView)
 

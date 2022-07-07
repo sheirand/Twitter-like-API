@@ -4,8 +4,15 @@ from page.serializers import PageSerializer, PostSerializer
 
 
 class PageAPIView(viewsets.ModelViewSet):
-    queryset = Page.objects.all()
     serializer_class = PageSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Page.objects.all()
+        return Page.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class PostAPIView(viewsets.ModelViewSet):
