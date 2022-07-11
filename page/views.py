@@ -19,7 +19,8 @@ class PageAPIViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    @action(detail=True, methods=("POST",))
+    #add url
+    @action(detail=True, methods=("POST",), url_path="follow-page")
     def follow(self, request, pk):
         page = self.get_object()
         if page.is_private:
@@ -28,7 +29,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
         page.followers.add(request.user)
         return Response({"detail": "Success"}, status=200)
 
-    @action(detail=True, methods=("POST",))
+    @action(detail=True, methods=("POST",), url_path="unfollow-page")
     def unfollow(self, request, pk):
         page = self.get_object()
         page.followers.remove(request.user)
@@ -37,11 +38,22 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
 class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrStaff | AllowFollowers | ReadonlyIfPublic)
 
     def get_queryset(self):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
 
     def perform_create(self, serializer):
-        serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')))
+        serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')), created_by=self.request.user)
 
-#    permission_classes = (IsOwnerOrStaff | AllowFollowers | ReadonlyIfPublic,)
+    @action(detail=True, methods=("POST",), url_path='like-post')
+    def like(self, request, pk):
+        post = self.get_object()
+        post.liked_by.add(request.user)
+        return Response({"detail": f"You like this post {pk} now"}, status=200)
+
+    @action(detail=True, methods=("POST",), url_path='unlike-post')
+    def unlike(self, request, pk):
+        post = self.get_object()
+        post.liked_by.remove(request.user)
+        return Response({"detail": f"You took away your like from post {pk}"}, status=200)

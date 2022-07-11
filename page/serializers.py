@@ -27,6 +27,7 @@ class PageSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     page = serializers.SlugRelatedField(slug_field='title', read_only=True)
     liked_by = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
+    created_by = serializers.SlugRelatedField(slug_field='email', read_only=True)
 
     class Meta:
         model = models.Post
@@ -35,7 +36,6 @@ class PostSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "id": {'read_only': True},
             "created_at": {'read_only': True},
-            "created_by": {'read_only': True},
             "updated_at": {'read_only': True},
         }
 

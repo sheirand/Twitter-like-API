@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 router.register('user', UserAPIViewset)
 router.register('pages', PageAPIViewset, basename="Pages")
 router_post = routers.DefaultRouter()
-router_post.register('post', PostAPIViewset, basename="Posts")
+router_post.register('posts', PostAPIViewset, basename="Posts")
 
 
 urlpatterns = [
