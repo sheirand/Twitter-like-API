@@ -12,7 +12,8 @@ router_post.register('post', PostAPIView)
 
 
 urlpatterns = [
-    path('pages/<int:pk>/', include(router_post.urls)),
     path('user/login/', UserLoginAPIView.as_view()),
     path('', include(router.urls)),
+    path('pages/<int:pk>/', include(router_post.urls)),
+
 ]

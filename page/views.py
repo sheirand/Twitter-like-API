@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from page.models import Page, Post
-from page.permissions import IsFollowerOrOwnerOrStaff
+from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer
 from user.models import User
 
@@ -39,4 +39,4 @@ class PageAPIView(viewsets.ModelViewSet):
 class PostAPIView(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsFollowerOrOwnerOrStaff,)
+    permission_classes = (ReadonlyIfPublic, IsOwnerOrStaff, AllowFollowers)

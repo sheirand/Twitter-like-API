@@ -4,14 +4,6 @@ from rest_framework.permissions import SAFE_METHODS
 from page.models import Page
 
 
-class IsFollowerOrOwnerOrStaff(permissions.BasePermission):
-    def has_permission(self, request, view):
-        page = Page.objects.filter(id=view.kwargs.get('pk')).first()
-        if request.method in SAFE_METHODS and not page.is_private:
-            return True
-        return bool(page.owner == request.user or request.user.is_staff)
-
-
 class IsOwnerOrStaff(permissions.BasePermission):
     def has_permission(self, request, view):
         page = Page.objects.filter(id=view.kwargs.get('pk')).first()
@@ -33,5 +25,6 @@ class AllowFollowers(permissions.BasePermission):
     def has_permission(self, request, view):
         page = Page.objects.filter(id=view.kwargs.get('pk')).first()
         return bool(
-            request.user in page.followers
+            request.user in page.followers.all() and
+            request.method in SAFE_METHODS
         )
