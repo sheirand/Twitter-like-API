@@ -1,16 +1,15 @@
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from page.models import Page, Post
 from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic
-from page.serializers import PageSerializer, PostSerializer, FollowerSerializer
-from user.models import User
+from page.serializers import PageSerializer, PostSerializer
 
 
-class PageAPIView(viewsets.ModelViewSet):
+class PageAPIViewset(viewsets.ModelViewSet):
     serializer_class = PageSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -36,7 +35,13 @@ class PageAPIView(viewsets.ModelViewSet):
         return Response({"detail": "You are no longer follow this page"}, status=200)
 
 
-class PostAPIView(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = (ReadonlyIfPublic, IsOwnerOrStaff, AllowFollowers)
+
+    def get_queryset(self):
+        return Post.objects.filter(page=self.kwargs.get('page_id'))
+
+    def perform_create(self, serializer):
+        serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')))
+
+#    permission_classes = (IsOwnerOrStaff | AllowFollowers | ReadonlyIfPublic,)

@@ -8,7 +8,7 @@ from user.permissions import IsOwnerOrAdmin
 from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer
 
 
-class UserAPIView(viewsets.ModelViewSet):
+class UserAPIViewset(viewsets.ModelViewSet):
     """API endpoint for User model"""
     queryset = User.objects.all()
     filter_backends = (filters.SearchFilter,)
