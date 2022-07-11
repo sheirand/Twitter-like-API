@@ -20,7 +20,7 @@ class IsOwnerOrStaff(permissions.BasePermission):
                     )
 
 
-class IsFollowerOrReadonly(permissions.BasePermission):
+class ReadonlyIfPublic(permissions.BasePermission):
     def has_permission(self, request, view):
         page = Page.objects.filter(id=view.kwargs.get('pk')).first()
         return bool(
@@ -28,3 +28,10 @@ class IsFollowerOrReadonly(permissions.BasePermission):
             not page.is_private
         )
 
+
+class AllowFollowers(permissions.BasePermission):
+    def has_permission(self, request, view):
+        page = Page.objects.filter(id=view.kwargs.get('pk')).first()
+        return bool(
+            request.user in page.followers
+        )
