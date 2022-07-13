@@ -2,10 +2,10 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, views, exceptions, permissions, filters
 from rest_framework.response import Response
 
-from user import services
 from user.models import User
 from user.permissions import IsOwnerOrAdmin
 from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer
+from user.services import JWTService
 
 
 class UserAPIViewset(viewsets.ModelViewSet):
@@ -54,7 +54,7 @@ class UserLoginAPIView(views.APIView):
         if not user.check_password(raw_password=password):
             raise exceptions.AuthenticationFailed("Invalid Credentials")
 
-        token = services.create_jwt_token(user_id=user.id, user_email=user.email)
+        token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
 
         resp = Response({"jwt_token": token}, status=200)
 

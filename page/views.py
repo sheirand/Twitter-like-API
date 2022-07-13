@@ -19,7 +19,6 @@ class PageAPIViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    #add url
     @action(detail=True, methods=("POST",), url_path="follow-page")
     def follow(self, request, pk):
         page = self.get_object()
