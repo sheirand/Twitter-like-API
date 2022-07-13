@@ -41,9 +41,9 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class FollowerSerializer(serializers.ModelSerializer):
-    followers = serializers.SlugRelatedField(many=True, slug_field='email', queryset=models.User.objects.all())
+    followers = serializers.SlugRelatedField(many=True, slug_field="email",
+                                             queryset=models.User.objects.all())
 
     class Meta:
         model = models.Post
         fields = ("followers",)
-
