@@ -33,9 +33,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ("id", "page", "content", "liked_by", "reply_to",
                   "created_at", "created_by", "updated_at",)
         extra_kwargs = {
-            "id": {'read_only': True},
-            "created_at": {'read_only': True},
-            "updated_at": {'read_only': True},
+            "read_only_fields": ('id', 'created_at', 'updated_at')
         }
 
 
