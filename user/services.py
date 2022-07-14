@@ -18,7 +18,7 @@ class JWTService:
             id=user_id,
             email=user_email,
             iat=datetime.datetime.utcnow(),
-            exp=datetime.datetime.utcnow() + datetime.timedelta(minutes=20)
+            exp=datetime.datetime.utcnow() + datetime.timedelta(minutes=40)
         )
         token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm="HS256")
 

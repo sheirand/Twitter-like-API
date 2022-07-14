@@ -1,26 +1,25 @@
 from rest_framework import serializers
-from page import models
+from page.models import Page, User, Post, Tag
 
 
 class PageSerializer(serializers.ModelSerializer):
-    tags = serializers.SlugRelatedField(many=True, slug_field='name', queryset=models.Tag.objects.all())
+    tags = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Tag.objects.all())
     owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
     followers = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
     follow_requests = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
 
     class Meta:
-        model = models.Page
+        model = Page
         fields = ("id", "uniq_id", "title", "description", "tags",
                   "owner", "followers", "image", "is_private",
                   "is_blocked", "follow_requests", "unblock_date")
         extra_kwargs = {
-                "is_blocked": {'read_only': True},
                 "unblock_date": {'read_only': True},
         }
 
     def to_internal_value(self, data):
         for tag_name in data.get('tags', []):
-            models.Tag.objects.get_or_create(name=tag_name)
+            Tag.objects.get_or_create(name=tag_name)
         return super().to_internal_value(data)
 
 
@@ -30,7 +29,7 @@ class PostSerializer(serializers.ModelSerializer):
     created_by = serializers.SlugRelatedField(slug_field='email', read_only=True)
 
     class Meta:
-        model = models.Post
+        model = Post
         fields = ("id", "page", "content", "liked_by", "reply_to",
                   "created_at", "created_by", "updated_at",)
         extra_kwargs = {
@@ -42,8 +41,24 @@ class PostSerializer(serializers.ModelSerializer):
 
 class FollowerSerializer(serializers.ModelSerializer):
     followers = serializers.SlugRelatedField(many=True, slug_field="email",
-                                             queryset=models.User.objects.all())
+                                             queryset=User.objects.all())
 
     class Meta:
-        model = models.Post
+        model = Post
         fields = ("followers",)
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    follow_requests = serializers.SlugRelatedField(many=True, slug_field="email",
+                                                   queryset=User.objects.all())
+
+    class Meta:
+        model = Post
+        fields = ("follow_requests",)
+
+    def update(self, instance, validated_data):
+        users = validated_data.pop('follow_requests')
+        for user in users:
+            instance.followers.add(user)
+        instance.save()
+        return instance
