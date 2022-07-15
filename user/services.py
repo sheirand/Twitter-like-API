@@ -49,3 +49,17 @@ class JWTService:
                 traceback.print_exc()
 
         return user_jwt
+
+
+def check_ban_status(user):
+    """Service for unbanning user
+    Return True if user ban expired or
+    user is not banned, False otherwise"""
+    now = datetime.datetime.utcnow()
+    if user.is_blocked and now > user.blocked_to:
+        user.is_blocked = False
+        user.blocked_to = None
+        return True
+    return not user.is_blocked
+
+

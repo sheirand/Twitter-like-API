@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from user.models import User
 from user.permissions import IsOwnerOrAdmin
 from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer, UserTokenSerializer
-from user.services import JWTService
+from user.services import check_ban_status
 
 
 class UserAPIViewset(viewsets.ModelViewSet):

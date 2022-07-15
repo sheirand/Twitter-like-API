@@ -61,3 +61,11 @@ class PageBasic(permissions.BasePermission):
              or request.user.is_staff
         )
 
+
+class UserIsBanned(permissions.BasePermission):
+    """Return False if user is banned, True otherwise"""
+    def has_permission(self, request, view):
+        return not request.user.is_blocked
+
+    def has_object_permission(self, request, view, obj):
+        return not request.user.is_blocked

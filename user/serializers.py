@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 from user import models
-from user.services import JWTService
+from user.services import JWTService, check_ban_status
 
 
 class UserFullSerializer(serializers.ModelSerializer):
@@ -48,6 +48,7 @@ class UserTokenSerializer(serializers.Serializer):
         """
         Validates user data.
         """
+
         email = data.get('email', None)
         password = data.get('password', None)
 
@@ -75,7 +76,8 @@ class UserTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'This user has been deactivated.'
             )
-        if user.is_blocked:
+
+        if not check_ban_status(user):
             raise serializers.ValidationError(
                 f"This user is blocked till {user.blocked_to.strftime('%d/%m/%y %H:%M')}"
             )

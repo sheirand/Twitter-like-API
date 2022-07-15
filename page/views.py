@@ -3,13 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from page.models import Page, Post
-from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic
+from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic, UserIsBanned
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer
 
 
 class PageAPIViewset(viewsets.ModelViewSet):
     serializer_class = PageSerializer
-    permission_classes = (IsAuthenticated, PageBasic)
+    permission_classes = (IsAuthenticated, PageBasic | UserIsBanned)
     queryset = Page.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -72,7 +72,9 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
 class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrStaff | AllowFollowers | ReadonlyIfPublic | PageBlocked)
+    permission_classes = (IsAuthenticated, IsOwnerOrStaff |
+                          AllowFollowers | ReadonlyIfPublic |
+                          PageBlocked | UserIsBanned)
 
     def get_queryset(self):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
