@@ -7,7 +7,6 @@ from page.models import Page
 class IsOwnerOrStaff(permissions.BasePermission):
     """Return True if user is page owner or staff, False otherwise"""
     def has_permission(self, request, view):
-        print("IsOwnerOrStaff")
         pk = view.kwargs.get('page_id')
         if not pk:
             pk = view.kwargs.get('pk')
@@ -24,8 +23,12 @@ class ReadonlyIfPublic(permissions.BasePermission):
     """Return True if page is public and
      HTTP methods are GET, HEAD or OPTION"""
     def has_permission(self, request, view):
-        page = Page.objects.filter(id=view.kwargs.get('page_id')).first()
-
+        pk = view.kwargs.get('page_id')
+        if not pk:
+            pk = view.kwargs.get('pk')
+        page = Page.objects.filter(id=pk).first()
+        if not page:
+            raise exceptions.NotFound()
         return bool(
             request.method in SAFE_METHODS and
             not page.is_private
@@ -38,8 +41,12 @@ class AllowFollowers(permissions.BasePermission):
     message = "Page is private"
 
     def has_permission(self, request, view):
-        page = Page.objects.filter(id=view.kwargs.get('page_id')).first()
-
+        pk = view.kwargs.get('page_id')
+        if not pk:
+            pk = view.kwargs.get('pk')
+        page = Page.objects.filter(id=pk).first()
+        if not page:
+            raise exceptions.NotFound()
         return bool(
             request.user in page.followers.all() and
             request.method in SAFE_METHODS
@@ -51,9 +58,12 @@ class PageBlocked(permissions.BasePermission):
     message = "Page is blocked"
 
     def has_permission(self, request, view):
-        page = Page.objects.filter(id=view.kwargs.get('page_id')).first()
+        pk = view.kwargs.get('page_id')
+        if not pk:
+            pk = view.kwargs.get('pk')
+        page = Page.objects.filter(id=pk).first()
         if not page:
-            page = Page.objects.filter(id=view.kwargs.get('pk')).first()
+            raise exceptions.NotFound()
         return bool(
             not page.is_blocked and
             not request.user.is_staff
