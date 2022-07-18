@@ -1,12 +1,12 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, exceptions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from page.models import Page, Post
 from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic, UserIsBanned
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
-    PageExtendedSerializer
+    PageExtendedSerializer, PostRepliesSerializer
 
 
 class PageAPIViewset(viewsets.ModelViewSet):
@@ -86,14 +86,22 @@ class PostAPIViewset(viewsets.ModelViewSet):
 
     @swagger_auto_schema(responses={200: '{"detail": "You like this post {%pk%} now"}'})
     @action(detail=True, methods=("GET",), url_path='like_post')
-    def like(self, request, pk):
+    def like(self, request, pk, *args, **kwargs):
         post = self.get_object()
         post.liked_by.add(request.user)
         return Response({"detail": f"You like this post {pk} now"}, status=200)
 
     @swagger_auto_schema(responses={200: '{"detail": "You took away your like from post post {%pk%}"}'})
     @action(detail=True, methods=("GET",), url_path='unlike_post')
-    def unlike(self, request, pk):
+    def unlike(self, request, pk, *args, **kwargs):
         post = self.get_object()
         post.liked_by.remove(request.user)
         return Response({"detail": f"You took away your like from post {pk}"}, status=200)
+
+    @action(detail=True, methods=("GET",), url_path='replies')
+    def replies(self, request, pk, *args, **kwargs):
+        instance = Post.objects.filter(reply_to=pk, page__owner__is_blocked=False, page__is_blocked=False)
+        if not instance:
+            raise exceptions.NotFound()
+        serializer = PostRepliesSerializer(instance=instance, many=True)
+        return Response(serializer.data)

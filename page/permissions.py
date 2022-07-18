@@ -64,16 +64,15 @@ class PageBlocked(permissions.BasePermission):
         page = Page.objects.filter(id=pk).first()
         if not page:
             raise exceptions.NotFound()
-        return bool(
-            not page.is_blocked and
-            not request.user.is_staff
-        )
+
+        return bool(not page.is_blocked)
 
 
 class PageBasic(permissions.BasePermission):
     """Return True if user is page owner or staff,
      otherwise allows only GET, HEAD, OPTION HTTP methods"""
     def has_object_permission(self, request, view, obj):
+
         return bool(
              request.method in SAFE_METHODS or
              obj.owner == request.user
@@ -91,4 +90,5 @@ class UserIsBanned(permissions.BasePermission):
         page = Page.objects.filter(id=pk).first()
         if not page:
             raise exceptions.NotFound()
+
         return not page.owner.is_blocked

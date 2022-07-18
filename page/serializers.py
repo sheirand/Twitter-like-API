@@ -72,3 +72,11 @@ class RequestSerializer(serializers.ModelSerializer):
             instance.followers.add(user)
         instance.save()
         return instance
+
+
+class PostRepliesSerializer(serializers.ModelSerializer):
+    post = PostSerializer
+
+    class Meta:
+        model = Post
+        fields = "__all__"
