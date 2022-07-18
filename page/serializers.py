@@ -2,7 +2,7 @@ from rest_framework import serializers
 from page.models import Page, User, Post, Tag
 
 
-class PageSerializer(serializers.ModelSerializer):
+class PageExtendedSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Tag.objects.all())
     owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
     followers = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
@@ -13,9 +13,6 @@ class PageSerializer(serializers.ModelSerializer):
         fields = ("id", "uniq_id", "title", "description", "tags",
                   "owner", "followers", "image", "is_private",
                   "is_blocked", "follow_requests", "unblock_date")
-        extra_kwargs = {
-                "unblock_date": {'read_only': True},
-        }
 
     def to_internal_value(self, data):
         for tag_name in data.get('tags', []):
@@ -23,8 +20,16 @@ class PageSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 
+class PageSerializer(PageExtendedSerializer):
+    class Meta:
+        model = Page
+        fields = ("id", "uniq_id", "title", "description", "tags",
+                  "owner", "followers", "image", "is_private",
+                  "is_blocked", "follow_requests", "unblock_date")
+        read_only_fields = ("is_blocked", "unblock_date")
+
+
 class PostSerializer(serializers.ModelSerializer):
-    page = serializers.SlugRelatedField(slug_field='title', read_only=True)
     liked_by = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
     created_by = serializers.SlugRelatedField(slug_field='email', read_only=True)
 
@@ -32,9 +37,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ("id", "page", "content", "liked_by", "reply_to",
                   "created_at", "created_by", "updated_at",)
-        extra_kwargs = {
-            "read_only_fields": ('id', 'created_at', 'updated_at')
-        }
+        read_only_fields = ('id', 'page', 'created_at', 'updated_at')
 
 
 class FollowerSerializer(serializers.ModelSerializer):
@@ -45,18 +48,27 @@ class FollowerSerializer(serializers.ModelSerializer):
         model = Post
         fields = ("followers",)
 
+    def update(self, instance, validated_data):
+        users = validated_data.pop('followers')
+        for user in users:
+            instance.followers.remove(user)
+        instance.save()
+        return instance
+
 
 class RequestSerializer(serializers.ModelSerializer):
     follow_requests = serializers.SlugRelatedField(many=True, slug_field="email",
                                                    queryset=User.objects.all())
+    followers = serializers.SlugRelatedField(many=True, slug_field="email", read_only=True)
 
     class Meta:
         model = Post
-        fields = ("follow_requests",)
+        fields = ("follow_requests", "followers")
 
     def update(self, instance, validated_data):
         users = validated_data.pop('follow_requests')
         for user in users:
+            instance.follow_requests.remove(user)
             instance.followers.add(user)
         instance.save()
         return instance

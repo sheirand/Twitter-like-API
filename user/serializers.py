@@ -73,12 +73,12 @@ class UserTokenSerializer(serializers.Serializer):
         token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
 
         if not user.is_active:
-            raise serializers.ValidationError(
+            raise exceptions.NotAuthenticated(
                 'This user has been deactivated.'
             )
 
         if not check_ban_status(user):
-            raise serializers.ValidationError(
+            raise exceptions.NotAuthenticated(
                 f"This user is blocked till {user.blocked_to.strftime('%d/%m/%y %H:%M')}"
             )
 
