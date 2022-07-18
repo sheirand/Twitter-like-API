@@ -1,5 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,6 +12,8 @@ from page.serializers import PageSerializer, PostSerializer, FollowerSerializer,
 class PageAPIViewset(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, PageBasic)
     queryset = Page.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("title", "uniq_id", "tags__name",)
 
     def get_serializer_class(self):
         if self.request.user.is_staff:
