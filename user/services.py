@@ -1,5 +1,4 @@
 import datetime
-import traceback
 
 import jwt
 
@@ -10,6 +9,10 @@ from rest_framework import exceptions
 
 from user import models
 from user.models import User
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class JWTService:
@@ -28,7 +31,7 @@ class JWTService:
         return token
 
     @staticmethod
-    def get_jwt_user(request) -> "User":
+    def get_jwt_user(request):
         """Service for get user by jwt in request headers"""
         user_jwt = get_user(request)
         if user_jwt.is_authenticated:
@@ -48,8 +51,9 @@ class JWTService:
                     id=user_jwt['id']
                 )
 
-            except Exception as e:
-                traceback.print_exc()
+            except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError) as error:
+                logger.error(f"JWT error message: {error}")
+                raise exceptions.AuthenticationFailed(error)
 
         return user_jwt
 
