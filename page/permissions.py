@@ -14,8 +14,10 @@ class IsOwnerOrStaff(permissions.BasePermission):
         if not page:
             raise exceptions.NotFound()
 
-        return bool(page.owner == request.user or
-                    request.user.is_staff)
+        return bool(
+            page.owner == request.user or
+            request.user.is_staff
+        )
 
 
 class ReadonlyIfPublic(permissions.BasePermission):
@@ -46,8 +48,10 @@ class AllowFollowers(permissions.BasePermission):
         page = Page.objects.filter(id=pk).first()
         if not page:
             raise exceptions.NotFound()
-        return bool(request.user in page.followers.all() and
-                    request.method in SAFE_METHODS)
+        return bool(
+            request.user in page.followers.all() and
+            request.method in SAFE_METHODS
+        )
 
 
 class PageBlocked(permissions.BasePermission):
@@ -62,7 +66,9 @@ class PageBlocked(permissions.BasePermission):
         if not page:
             raise exceptions.NotFound()
 
-        return bool(not page.is_blocked)
+        return bool(
+            not page.is_blocked
+        )
 
 
 class PageBasic(permissions.BasePermission):
