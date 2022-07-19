@@ -1,6 +1,7 @@
-from rest_framework import serializers, exceptions
+from rest_framework import serializers
+
 from user import models
-from user.services import JWTService, check_ban_status
+from user.services import JWTService, UserService
 
 
 class UserFullSerializer(serializers.ModelSerializer):
@@ -40,47 +41,20 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
 
 
 class UserTokenSerializer(serializers.Serializer):
-    email = serializers.EmailField(write_only=True)
-    password = serializers.CharField(write_only=True, max_length=128)
+    email = serializers.EmailField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, max_length=128, required=True)
     token = serializers.CharField(read_only=True, max_length=255)
 
     def validate(self, data):
         """
         Validates user data.
         """
+        email = data.get('email')
+        password = data.get('password')
 
-        email = data.get('email', None)
-        password = data.get('password', None)
-
-        if email is None:
-            raise serializers.ValidationError(
-                'An email address is required to log in.'
-            )
-
-        if password is None:
-            raise serializers.ValidationError(
-                'A password is required to log in.'
-            )
-
-        user = models.User.objects.filter(email=email).first()
-
-        if user is None:
-            raise exceptions.AuthenticationFailed("Invalid Credentials")
-
-        if not user.check_password(raw_password=password):
-            raise exceptions.AuthenticationFailed("Invalid Credentials")
+        user = UserService.authenticate(email=email, password=password)
 
         token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
-
-        if not user.is_active:
-            raise exceptions.NotAuthenticated(
-                'This user has been deactivated.'
-            )
-
-        if not check_ban_status(user):
-            raise exceptions.NotAuthenticated(
-                f"This user is blocked till {user.blocked_to.strftime('%d/%m/%y %H:%M')}"
-            )
 
         return {
             'token': token,

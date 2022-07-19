@@ -28,8 +28,10 @@ class ReadonlyIfPublic(permissions.BasePermission):
         page = Page.objects.filter(id=pk).first()
         if not page:
             raise exceptions.NotFound()
-        return bool(request.method in SAFE_METHODS and
-                    not page.is_private)
+        return bool(
+            request.method in SAFE_METHODS and
+            not page.is_private
+        )
 
 
 class AllowFollowers(permissions.BasePermission):

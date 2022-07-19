@@ -8,6 +8,7 @@ from django.contrib.auth.middleware import get_user
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import exceptions
 
+from user import models
 from user.models import User
 
 
@@ -53,21 +54,49 @@ class JWTService:
         return user_jwt
 
 
-def check_ban_status(user):
-    """Service for unbanning user
-    Return True if user ban expired or
-    user is not banned, False otherwise"""
-    now = datetime.datetime.utcnow()
-    ban_end = user.blocked_to
-    if user.is_blocked and not ban_end:
-        raise exceptions.NotAuthenticated(
-            f"This user is blocked permanently"
-        )
-    if user.is_blocked and now > ban_end:
-        user.is_blocked = False
-        user.blocked_to = None
-        user.save()
-        return True
-    return not user.is_blocked
+class UserService:
 
+    @classmethod
+    def authenticate(cls, email: str = None, password: str = None) -> "User":
+
+        user = models.User.objects.filter(email=email).first()
+
+        if user is None:
+            raise exceptions.AuthenticationFailed("Invalid Credentials")
+
+        if not cls.check_ban_status(user):
+            raise exceptions.NotAuthenticated(
+                f"This user is blocked till {user.blocked_to.strftime('%d/%m/%y %H:%M')}"
+            )
+
+        if not user.check_password(raw_password=password):
+            raise exceptions.AuthenticationFailed("Invalid Credentials")
+
+        if not user.is_active:
+            raise exceptions.NotAuthenticated(
+                'This user has been deactivated.'
+            )
+
+        return user
+
+    @staticmethod
+    def check_ban_status(user):
+        """Service for unbanning user
+        Return True if user ban expired or
+        user is not banned, False otherwise"""
+        now = datetime.datetime.utcnow()
+        ban_end = user.blocked_to
+
+        if user.is_blocked and not ban_end:
+            raise exceptions.NotAuthenticated(
+                f"This user is blocked permanently"
+            )
+
+        if user.is_blocked and now > ban_end:
+            user.is_blocked = False
+            user.blocked_to = None
+            user.save()
+            return True
+
+        return not user.is_blocked
 
