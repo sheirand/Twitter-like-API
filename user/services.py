@@ -31,7 +31,7 @@ class JWTService:
         return token
 
     @staticmethod
-    def get_jwt_user(request):
+    def get_jwt_user(request) -> "User":
         """Service for get user by jwt in request headers"""
         user_jwt = get_user(request)
         if user_jwt.is_authenticated:
@@ -103,4 +103,3 @@ class UserService:
             return True
 
         return not user.is_blocked
-

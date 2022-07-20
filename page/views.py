@@ -7,6 +7,7 @@ from page.models import Page, Post
 from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic, UserIsBanned
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
     PageExtendedSerializer, PostRepliesSerializer
+from page.services import PageService, PostService
 
 
 class PageAPIViewset(viewsets.ModelViewSet):
@@ -23,50 +24,47 @@ class PageAPIViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    @swagger_auto_schema(responses={200: '{"detail": "Success!"}',
-                                    202: '{"detail": "Your follow request is waiting to be accepted"}'})
+    @swagger_auto_schema(methods=["GET"], responses={
+        202: '{"detail": "Your follow request is waiting to be accepted"}',
+        201: '{"detail": "You now follow this page | You now longer follow this page"}'
+    }
+                         )
     @action(detail=True, methods=("GET",), url_path="follow", permission_classes=(IsAuthenticated,))
-    def follow(self, request, pk):
+    def follow(self, request, pk, *args, **kwargs):
         page = self.get_object()
-        if page.is_private:
-            page.follow_requests.add(request.user)
-            return Response({"detail": "Your follow request is waiting to be accepted"}, status=202)
-        page.followers.add(request.user)
-        return Response({"detail": "Success"}, status=200)
-
-    @swagger_auto_schema(responses={200: '{"detail": "You are no longer follow this page"}'})
-    @action(detail=True, methods=("GET",), url_path="unfollow", permission_classes=(IsAuthenticated,))
-    def unfollow(self, request, pk):
-        page = self.get_object()
-        page.follow_requests.remove(request.user)
-        page.followers.remove(request.user)
-        return Response({"detail": "You are no longer follow this page"}, status=200)
+        return PageService.follow_unfollow_toggle(page, request)
 
     @swagger_auto_schema(method="GET", responses={200: FollowerSerializer})
-    @swagger_auto_schema(method="PATCH", request_body=FollowerSerializer)
-    @action(detail=True, methods=("GET", "PATCH",),
-            url_path="followers", serializer_class=FollowerSerializer,
-            permission_classes=(IsOwnerOrStaff,))
-    def followers(self, request, pk):
+    @action(detail=True, methods=("GET",), url_path="followers",
+            serializer_class=FollowerSerializer, permission_classes=(IsOwnerOrStaff,))
+    def followers(self, request, pk, *args, **kwargs):
         instance = self.get_queryset().get(id=pk)
-        if request.method == "GET":
-            serializer = FollowerSerializer(instance=instance)
-            return Response(serializer.data)
-        serializer = FollowerSerializer(instance=instance, data=self.request.data, partial=True)
+        serializer = FollowerSerializer(instance=instance)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(method="PATCH", request_body=FollowerSerializer)
+    @action(detail=True, methods=("PATCH",), url_path="followers-remove",
+            serializer_class=FollowerSerializer, permission_classes=(IsOwnerOrStaff,))
+    def patch_followers(self, request, pk, *args, **kwargs):
+        instance = self.get_queryset().get(id=pk)
+        serializer = FollowerSerializer(instance=instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     @swagger_auto_schema(method="GET", responses={200: RequestSerializer})
-    @swagger_auto_schema(method="PATCH", request_body=RequestSerializer)
-    @action(detail=True, methods=("PATCH", "GET"),
-            url_path="follow_requests", serializer_class=RequestSerializer,
-            permission_classes=(IsOwnerOrStaff,))
-    def requests(self, request, pk):
+    @action(detail=True, methods=("GET",), url_path="follow-requests",
+            serializer_class=RequestSerializer, permission_classes=(IsOwnerOrStaff,))
+    def requests(self, request, pk, *args, **kwargs):
         instance = self.get_queryset().get(id=pk)
-        if request.method == "GET":
-            serializer = RequestSerializer(instance=instance)
-            return Response(serializer.data)
+        serializer = RequestSerializer(instance=instance)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(method="PATCH", request_body=RequestSerializer)
+    @action(detail=True, methods=("PATCH",), url_path="approve-requests",
+            serializer_class=RequestSerializer, permission_classes=(IsOwnerOrStaff,))
+    def approve_requests(self, request, pk, *args, **kwargs):
+        instance = self.get_queryset().get(id=pk)
         serializer = RequestSerializer(instance=instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -75,8 +73,9 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
 class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, UserIsBanned, PageBlocked,
-                          IsOwnerOrStaff | AllowFollowers | ReadonlyIfPublic)
+    permission_classes = (IsAuthenticated, IsOwnerOrStaff |
+                          AllowFollowers | ReadonlyIfPublic |
+                          UserIsBanned | PageBlocked)
 
     def get_queryset(self):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
@@ -84,24 +83,14 @@ class PostAPIViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')), created_by=self.request.user)
 
-    @swagger_auto_schema(responses={200: '{"detail": "You like this post {%pk%} now"}'})
-    @action(detail=True, methods=("GET",), url_path='like_post')
+    @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
+    @action(detail=True, methods=("GET",), url_path='like-post')
     def like(self, request, pk, *args, **kwargs):
         post = self.get_object()
-        post.liked_by.add(request.user)
-        return Response({"detail": f"You like this post {pk} now"}, status=200)
-
-    @swagger_auto_schema(responses={200: '{"detail": "You took away your like from post post {%pk%}"}'})
-    @action(detail=True, methods=("GET",), url_path='unlike_post')
-    def unlike(self, request, pk, *args, **kwargs):
-        post = self.get_object()
-        post.liked_by.remove(request.user)
-        return Response({"detail": f"You took away your like from post {pk}"}, status=200)
+        return PostService.like_unlike_toggle(post, request)
 
     @action(detail=True, methods=("GET",), url_path='replies')
     def replies(self, request, pk, *args, **kwargs):
-        instance = Post.objects.filter(reply_to=pk, page__owner__is_blocked=False, page__is_blocked=False)
-        if not instance:
-            raise exceptions.NotFound()
+        instance = PostService.get_visible_replies(pk)
         serializer = PostRepliesSerializer(instance=instance, many=True)
         return Response(serializer.data)
