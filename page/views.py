@@ -1,3 +1,4 @@
+from django.utils.functional import SimpleLazyObject
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, filters, exceptions, mixins, status
 from rest_framework.decorators import action
@@ -106,7 +107,6 @@ class FeedAPIViewset(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        user = self.request.user
-        return Post.objects.filter(page__followers=user,
+        return Post.objects.filter(page__followers=self.request.user.id,
                                    page__owner__is_blocked=False,
                                    page__is_blocked=False).order_by('-created_at')
