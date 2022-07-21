@@ -1,7 +1,5 @@
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, views, permissions, filters, status
+from rest_framework import viewsets, views, permissions, filters, mixins
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
 
 from user.models import User
 from user.permissions import IsOwnerOrAdmin
@@ -32,21 +30,8 @@ class UserAPIViewset(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class UserLoginAPIView(views.APIView):
+class UserLoginAPIViewset(mixins.CreateModelMixin,
+                          viewsets.GenericViewSet):
     permission_classes = (AllowAny,)
     serializer_class = UserTokenSerializer
-
-    @swagger_auto_schema(request_body=UserTokenSerializer,
-                         operation_description="Returns JWT if credentials were provided",
-                         responses={200: "Success. Returns JSON: {\"jwt:\" \"token\"}",
-                                    403: "Forbidden. Invalid credentials"})
-    def post(self, request):
-        """
-        Checks if user exists.
-        Email and password are required.
-        Returns a JSON web token.
-        """
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    queryset = User.objects.all()

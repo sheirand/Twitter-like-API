@@ -40,10 +40,14 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
         fields = ("id", "email", "password", "role")
 
 
-class UserTokenSerializer(serializers.Serializer):
+class UserTokenSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, max_length=128, required=True)
     token = serializers.CharField(read_only=True, max_length=255)
+
+    class Meta:
+        model = models.User
+        fields = ("email", "password", "token")
 
     def validate(self, data):
         """
@@ -54,8 +58,12 @@ class UserTokenSerializer(serializers.Serializer):
 
         user = UserService.authenticate(email=email, password=password)
 
-        token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
+        data['user'] = user
 
-        return {
-            'token': token,
-        }
+        return data
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
+        return {"token": token}
+

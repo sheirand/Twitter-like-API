@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from page.views import PageAPIViewset, PostAPIViewset, FeedAPIViewset
-from user.views import UserAPIViewset, UserLoginAPIView
+from user.views import UserAPIViewset, UserLoginAPIViewset
 
 
 router = routers.DefaultRouter()
@@ -13,7 +13,7 @@ router_post.register('posts', PostAPIViewset, basename="Posts")
 
 
 urlpatterns = [
-    path('user/login/', UserLoginAPIView.as_view()),
+    path('user/login/', UserLoginAPIViewset.as_view({'post': 'create'})),
     path('', include(router.urls)),
     path('pages/<int:page_id>/', include(router_post.urls)),
 ]
