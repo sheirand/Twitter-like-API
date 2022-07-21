@@ -9,9 +9,9 @@ class IsOwnerOrStaff(permissions.BasePermission):
     def has_permission(self, request, view):
         page = PageService.get_page_from_view(view)
 
-        return bool(
-            page.owner == request.user or
-            request.user.is_staff
+        return (
+                page.owner == request.user or
+                request.user.is_staff
         )
 
 
@@ -21,9 +21,9 @@ class ReadonlyIfPublic(permissions.BasePermission):
     def has_permission(self, request, view):
         page = PageService.get_page_from_view(view)
 
-        return bool(
-            request.method in SAFE_METHODS and
-            not page.is_private
+        return (
+                request.method in SAFE_METHODS and
+                not page.is_private
         )
 
 
@@ -35,9 +35,9 @@ class AllowFollowers(permissions.BasePermission):
     def has_permission(self, request, view):
         page = PageService.get_page_from_view(view)
 
-        return bool(
-            request.user in page.followers.all() and
-            request.method in SAFE_METHODS
+        return (
+                request.user in page.followers.all() and
+                request.method in SAFE_METHODS
         )
 
 
@@ -48,9 +48,7 @@ class PageBlocked(permissions.BasePermission):
     def has_permission(self, request, view):
         page = PageService.get_page_from_view(view)
 
-        return bool(
-            not page.is_blocked
-        )
+        return not page.is_blocked
 
 
 class PageBasic(permissions.BasePermission):
@@ -58,10 +56,11 @@ class PageBasic(permissions.BasePermission):
      otherwise allows only GET, HEAD, OPTION HTTP methods"""
     def has_object_permission(self, request, view, obj):
 
-        return bool(
-             request.method in SAFE_METHODS or
-             obj.owner == request.user
-             or request.user.is_staff)
+        return (
+                request.method in SAFE_METHODS or
+                obj.owner == request.user
+                or request.user.is_staff
+        )
 
 
 class UserIsBanned(permissions.BasePermission):
