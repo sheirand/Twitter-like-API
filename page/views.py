@@ -1,5 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, filters, exceptions, mixins
+from rest_framework import viewsets, filters, exceptions, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,7 +31,8 @@ class PageAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("GET",), url_path="follow", permission_classes=(IsAuthenticated,))
     def follow(self, request, pk, *args, **kwargs):
         page = self.get_object()
-        return PageService.follow_unfollow_toggle(page, request)
+        msg = PageService.follow_unfollow_toggle(page, request)
+        return Response(data=msg, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(responses={200: FollowerSerializer})
     @action(detail=True, methods=("GET",), url_path="followers",
@@ -86,7 +87,8 @@ class PostAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
     def like(self, request, pk, *args, **kwargs):
         post = self.get_object()
-        return PostService.like_unlike_toggle(post, request)
+        msg = PostService.like_unlike_toggle(post, request)
+        return Response(data=msg, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=("GET",), url_path='replies')
     def replies(self, request, pk, *args, **kwargs):
