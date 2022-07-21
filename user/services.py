@@ -60,15 +60,15 @@ class JWTService:
 
 class UserService:
 
-    @classmethod
-    def authenticate(cls, email: str = None, password: str = None) -> "User":
+    @staticmethod
+    def authenticate(email: str = None, password: str = None) -> "User":
 
         user = models.User.objects.filter(email=email).first()
 
         if user is None:
             raise exceptions.AuthenticationFailed("Invalid Credentials")
 
-        if not cls.check_ban_status(user):
+        if not UserService.check_ban_status(user):
             raise exceptions.NotAuthenticated(
                 f"This user is blocked till {user.blocked_to.strftime('%d/%m/%y %H:%M')}"
             )
