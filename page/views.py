@@ -1,5 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, filters, exceptions
+from rest_framework import viewsets, filters, exceptions, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -93,3 +93,18 @@ class PostAPIViewset(viewsets.ModelViewSet):
         instance = PostService.get_visible_replies(pk)
         serializer = PostRepliesSerializer(instance=instance, many=True)
         return Response(serializer.data)
+
+
+class FeedAPIViewset(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
+    serializer_class = PostSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("page__id", "page__uniq_id")
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Post.objects.filter(page__followers=user,
+                                   page__owner__is_blocked=False,
+                                   page__is_blocked=False).order_by('-created_at')
