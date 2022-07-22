@@ -149,3 +149,14 @@ SWAGGER_SETTINGS = {
        }
    }
 }
+
+# SMTP service config
+
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+
+# Celery (+RabbitMQ)
+CELERY_BROKER_URL = 'amqp://innotter:rabbit@rabbit:5672/'

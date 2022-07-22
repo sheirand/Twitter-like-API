@@ -9,6 +9,7 @@ from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, P
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
     PageExtendedSerializer, PostRepliesSerializer
 from page.services import PageService, PostService
+from page.tasks import send_notification
 
 
 class PageAPIViewset(viewsets.ModelViewSet):
@@ -83,6 +84,10 @@ class PostAPIViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')), created_by=self.request.user)
+        # get list of followers and send email notification about new posts
+        recipients = Page.objects.get(pk=self.kwargs.get('page_id')).followers.all()
+        emails = [str(email) for email in recipients]
+        send_notification.delay(email_list=emails, page="https://page-link-template.com")
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
