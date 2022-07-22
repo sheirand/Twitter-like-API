@@ -1,6 +1,7 @@
 import pytest
 
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
 
 
 @pytest.mark.django_db
@@ -13,7 +14,7 @@ def test_register_user(client):
 
     response = client.post("/api/v1/user/", payload)
 
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
 
     data = response.data
 
@@ -28,7 +29,7 @@ def test_user_login(client, user):
     response = client.post("/api/v1/user/login/", data={"email": user.email,
                                                         "password": "youshallnotpass"})
 
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
     assert "token" in response.data
 
 
@@ -38,7 +39,7 @@ def test_blocked_user_cant_login(client, blocked_user):
     response = client.post("/api/v1/user/login/", data={"email": blocked_user,
                                                         "password": "demoninside"})
 
-    assert response.status_code == 403
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
     data = response.data
 
@@ -52,7 +53,7 @@ def test_get_user_info_by_superuser(client, user, superuser_token):
     response = client.get(f"/api/v1/user/{user.id}/", {},
                           HTTP_AUTHORIZATION=f"{superuser_token}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     data = response.data
 
@@ -67,7 +68,7 @@ def test_access_user_endpoint_by_user(client, user, superuser, user_token):
     response = client.get(f"/api/v1/user/{user.id}/", {},
                           HTTP_AUTHORIZATION=f"{user_token}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     data = response.data
 
@@ -77,7 +78,7 @@ def test_access_user_endpoint_by_user(client, user, superuser, user_token):
     response = client.get(f"/api/v1/user/{superuser.id}/", {},
                           HTTP_AUTHORIZATION=f"{user_token}")
 
-    assert response.status_code == 403
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db
@@ -88,7 +89,7 @@ def test_user_change_profile(client, user, user_token):
                             data=payload,
                             HTTP_AUTHORIZATION=f"{user_token}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     data = response.data
 
@@ -108,7 +109,7 @@ def superuser_can_change_user_profile(client, user, superuser_token):
                           data=payload,
                           HTTP_AUTHORIZATION=f"{superuser_token}")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     data = response.data
 
@@ -126,7 +127,7 @@ def test_user_delete(client, user, superuser_token):
     response = client.delete(f"/api/v1/user/{user.id}/", {},
                              HTTP_AUTHORIZATION=f"{superuser_token}")
 
-    assert response.status_code == 204
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
     with pytest.raises(ObjectDoesNotExist):
         user.refresh_from_db()
