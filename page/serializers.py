@@ -79,4 +79,6 @@ class PostRepliesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = "__all__"
+        fields = ("id", "page", "content", "liked_by", "reply_to",
+                  "created_at", "created_by", "updated_at",)
+        read_only_fields = ('id', 'page', 'created_at', 'updated_at')
