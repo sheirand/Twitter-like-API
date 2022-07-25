@@ -7,7 +7,7 @@ from page.services import PageService
 class IsOwnerOrStaff(permissions.BasePermission):
     """Return True if user is page owner or staff, False otherwise"""
     def has_permission(self, request, view):
-        page = PageService.get_page_from_view(view)
+        page = PageService.get_page_from_kwargs(view.kwargs)
 
         return (
                 page.owner == request.user or
@@ -19,7 +19,7 @@ class ReadonlyIfPublic(permissions.BasePermission):
     """Return True if page is public and
      HTTP methods are GET, HEAD or OPTION"""
     def has_permission(self, request, view):
-        page = PageService.get_page_from_view(view)
+        page = PageService.get_page_from_kwargs(view.kwargs)
 
         return (
                 request.method in SAFE_METHODS and
@@ -33,7 +33,7 @@ class AllowFollowers(permissions.BasePermission):
     message = "Page is private"
 
     def has_permission(self, request, view):
-        page = PageService.get_page_from_view(view)
+        page = PageService.get_page_from_kwargs(view.kwargs)
 
         return (
                 request.user in page.followers.all() and
@@ -46,7 +46,7 @@ class PageBlocked(permissions.BasePermission):
     message = "Page is blocked"
 
     def has_permission(self, request, view):
-        page = PageService.get_page_from_view(view)
+        page = PageService.get_page_from_kwargs(view.kwargs)
 
         return not page.is_blocked
 
@@ -67,6 +67,6 @@ class UserIsBanned(permissions.BasePermission):
     """Return False if user is banned, True otherwise"""
 
     def has_permission(self, request, view):
-        page = PageService.get_page_from_view(view)
+        page = PageService.get_page_from_kwargs(view.kwargs)
 
         return not page.owner.is_blocked

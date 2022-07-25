@@ -7,10 +7,10 @@ from page.models import Page, Post
 class PageService:
 
     @staticmethod
-    def get_page_from_view(view):
-        pk = view.kwargs.get('page_id')
+    def get_page_from_kwargs(kwargs: dict):
+        pk = kwargs.get('page_id')
         if not pk:
-            pk = view.kwargs.get('pk')
+            pk = kwargs.get('pk')
         try:
             page = Page.objects.get(id=pk)
         except ObjectDoesNotExist:
