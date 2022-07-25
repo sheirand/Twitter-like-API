@@ -1,7 +1,9 @@
 import pytest
+from django.conf import settings
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
+import jwt
 
 
 @pytest.mark.django_db
@@ -29,8 +31,14 @@ def test_user_login(client, user):
     response = client.post("/api/v1/user/login/", data={"email": user.email,
                                                         "password": "youshallnotpass"})
 
+    credentials = jwt.decode(response.data["token"],
+                             settings.JWT_SECRET_KEY,
+                             algorithms=['HS256'])
+
     assert response.status_code == status.HTTP_201_CREATED
     assert "token" in response.data
+    assert user.email == credentials["email"]
+    assert user.id == credentials["id"]
 
 
 @pytest.mark.django_db
