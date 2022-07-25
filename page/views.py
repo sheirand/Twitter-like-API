@@ -88,7 +88,7 @@ class PostAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
     def like(self, request, pk, *args, **kwargs):
         post = self.get_object()
-        msg = PostService.like_unlike_toggle(post, request)
+        msg = PostService.like_unlike_toggle(request, pk, post)
         return Response(data=msg, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=("GET",), url_path='replies')
