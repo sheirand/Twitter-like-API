@@ -67,3 +67,10 @@ class UserTokenSerializer(serializers.ModelSerializer):
         token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
         return {"token": token}
 
+
+class NestedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ("id", "email")
+        read_only_fields = ("id", "email")
+

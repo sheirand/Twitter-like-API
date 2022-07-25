@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from page.models import Page, User, Post, Tag
+from user.serializers import NestedUserSerializer
 
 
 class PageExtendedSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Tag.objects.all())
-    owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
-    followers = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
-    follow_requests = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
+    owner = NestedUserSerializer(read_only=True)
+    followers = NestedUserSerializer(many=True, read_only=True)
+    follow_requests = NestedUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Page
@@ -30,8 +31,8 @@ class PageSerializer(PageExtendedSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    liked_by = serializers.SlugRelatedField(many=True, slug_field='email', read_only=True)
-    created_by = serializers.SlugRelatedField(slug_field='email', read_only=True)
+    liked_by = NestedUserSerializer(many=True, read_only=True)
+    created_by = NestedUserSerializer(read_only=True)
 
     class Meta:
         model = Post
@@ -41,8 +42,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class FollowerSerializer(serializers.ModelSerializer):
-    followers = serializers.SlugRelatedField(many=True, slug_field="email",
-                                             queryset=User.objects.all())
+    followers = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
 
     class Meta:
         model = Post
@@ -57,9 +57,9 @@ class FollowerSerializer(serializers.ModelSerializer):
 
 
 class RequestSerializer(serializers.ModelSerializer):
-    follow_requests = serializers.SlugRelatedField(many=True, slug_field="email",
-                                                   queryset=User.objects.all())
-    followers = serializers.SlugRelatedField(many=True, slug_field="email", read_only=True)
+    follow_requests = serializers.PrimaryKeyRelatedField(many=True,
+                                                         queryset=User.objects.all())
+    followers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -75,7 +75,9 @@ class RequestSerializer(serializers.ModelSerializer):
 
 
 class PostRepliesSerializer(serializers.ModelSerializer):
-    post = PostSerializer
+    liked_by = NestedUserSerializer(many=True, read_only=True)
+    created_by = NestedUserSerializer(read_only=True)
+    reply_to = PostSerializer(read_only=True)
 
     class Meta:
         model = Post
