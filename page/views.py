@@ -39,7 +39,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("GET",), url_path="followers",
             serializer_class=FollowerSerializer, permission_classes=(IsOwnerOrStaff,))
     def followers(self, request, pk, *args, **kwargs):
-        instance = self.get_queryset().get(id=pk)
+        instance = self.get_object()
         serializer = FollowerSerializer(instance=instance)
         return Response(serializer.data)
 
@@ -47,7 +47,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("PATCH",), url_path="followers-remove",
             serializer_class=FollowerSerializer, permission_classes=(IsOwnerOrStaff,))
     def patch_followers(self, request, pk, *args, **kwargs):
-        instance = self.get_queryset().get(id=pk)
+        instance = self.get_object()
         serializer = FollowerSerializer(instance=instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -57,7 +57,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("GET",), url_path="follow-requests",
             serializer_class=RequestSerializer, permission_classes=(IsOwnerOrStaff,))
     def requests(self, request, pk, *args, **kwargs):
-        instance = self.get_queryset().get(id=pk)
+        instance = self.get_object()
         serializer = RequestSerializer(instance=instance)
         return Response(serializer.data)
 
@@ -65,7 +65,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=("PATCH",), url_path="approve-requests",
             serializer_class=RequestSerializer, permission_classes=(IsOwnerOrStaff,))
     def approve_requests(self, request, pk, *args, **kwargs):
-        instance = self.get_queryset().get(id=pk)
+        instance = self.get_object()
         serializer = RequestSerializer(instance=instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
