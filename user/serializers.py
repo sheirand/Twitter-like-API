@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from user import models
+from user.services import JWTService, UserService
 
 
 class UserFullSerializer(serializers.ModelSerializer):
@@ -36,3 +38,39 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = ("id", "email", "password", "role")
+
+
+class UserTokenSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, max_length=128, required=True)
+    token = serializers.CharField(read_only=True, max_length=255)
+
+    class Meta:
+        model = models.User
+        fields = ("email", "password", "token")
+
+    def validate(self, data):
+        """
+        Validates user data.
+        """
+        email = data.get('email')
+        password = data.get('password')
+
+        user = UserService.authenticate(email=email, password=password)
+
+        data['user'] = user
+
+        return data
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        token = JWTService.create_jwt_token(user_id=user.id, user_email=user.email)
+        return {"token": token}
+
+
+class NestedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ("id", "email")
+        read_only_fields = ("id", "email")
+

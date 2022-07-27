@@ -1,14 +1,12 @@
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, views, exceptions, permissions, filters
-from rest_framework.response import Response
+from rest_framework import viewsets, views, permissions, filters, mixins
+from rest_framework.permissions import AllowAny
 
-from user import services
 from user.models import User
 from user.permissions import IsOwnerOrAdmin
-from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer
+from user.serializers import UserSerializer, UserCredentialsSerializer, UserFullSerializer, UserTokenSerializer
 
 
-class UserAPIView(viewsets.ModelViewSet):
+class UserAPIViewset(viewsets.ModelViewSet):
     """API endpoint for User model"""
     queryset = User.objects.all()
     filter_backends = (filters.SearchFilter,)
@@ -32,30 +30,8 @@ class UserAPIView(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class UserLoginAPIView(views.APIView):
-    """API endpoint to obtain JWT"""
-    @swagger_auto_schema(request_body=UserCredentialsSerializer,
-                         operation_description="Returns JWT if credentials were provided",
-                         responses={200: "Success. Returns JSON: {\"jwt:\" \"token\"}",
-                                    403: "Forbidden. Invalid credentials"}
-                         )
-    def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        if not email or not password:
-            raise exceptions.ValidationError(detail={"email": "email field is required",
-                                                     "password": "password field is required"})
-
-        user = User.objects.filter(email=email).first()
-
-        if user is None:
-            raise exceptions.AuthenticationFailed("Invalid Credentials")
-
-        if not user.check_password(raw_password=password):
-            raise exceptions.AuthenticationFailed("Invalid Credentials")
-
-        token = services.create_jwt_token(user_id=user.id, user_email=user.email)
-
-        resp = Response({"jwt_token": token}, status=200)
-
-        return resp
+class UserLoginAPIViewset(mixins.CreateModelMixin,
+                          viewsets.GenericViewSet):
+    permission_classes = (AllowAny,)
+    serializer_class = UserTokenSerializer
+    queryset = User.objects.all()
