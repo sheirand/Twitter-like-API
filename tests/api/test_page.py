@@ -203,7 +203,28 @@ def test_user_can_remove_followers(client_with_pages_and_followers, another_user
     assert response.status_code == status.HTTP_200_OK
 
     data = response.data
-    print(data)
 
     assert user.id not in data["followers"]
 
+
+@pytest.mark.django_db
+def test_user_can_accept_follow_requests(client_with_pages_and_followers, another_user_token,
+                                         page_ids, user):
+
+    payload = dict(
+        follow_requests=[user.id]
+    )
+
+    response = client_with_pages_and_followers.patch(
+        f'/api/v1/pages/{page_ids["another_private_page_id"]}/approve-requests/',
+        payload,
+        HTTP_AUTHORIZATION=f"{another_user_token}",
+        format='json'
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    data = response.data
+
+    assert user.id not in data["follow_requests"]
+    assert user.id in data["followers"]
