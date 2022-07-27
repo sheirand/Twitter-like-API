@@ -167,7 +167,7 @@ def client_with_pages(client, user_token, superuser_token, another_user_token,
                 HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
     client.post('/api/v1/pages/', page_private,
-                HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
+                HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
     client.post('/api/v1/pages/', page_blocked,
                 HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
@@ -202,3 +202,15 @@ def page_ids(client_with_pages, superuser_token):
     )
 
     return page_ids
+
+
+@pytest.fixture
+def client_with_pages_and_followers(client_with_pages, user_token, page_ids):
+
+    client_with_pages.get(f'/api/v1/pages/{page_ids["another_public_page_id"]}/follow/',
+                          HTTP_AUTHORIZATION=f"{user_token}", format='json')
+
+    client_with_pages.get(f'/api/v1/pages/{page_ids["another_private_page_id"]}/follow/',
+                          HTTP_AUTHORIZATION=f"{user_token}", format='json')
+
+    return client_with_pages
