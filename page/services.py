@@ -20,18 +20,18 @@ class PageService:
         return page
 
     @staticmethod
-    def follow_unfollow_toggle(page, request) -> str:
+    def follow_unfollow_toggle(page, request) -> dict:
 
         if request.user not in page.followers.all():
             if page.is_private:
                 page.follow_requests.add(request.user)
-                msg = "Your follow request is waiting to be accepted"
+                msg = {"detail": "Your follow request is waiting to be accepted"}
                 return msg
             page.followers.add(request.user)
-            msg = "You now follow this page"
+            msg = {"detail": "You now follow this page"}
             return msg
         page.followers.remove(request.user)
-        msg = "You are no longer follow this page"
+        msg = {"detail": "You are no longer follow this page"}
         return msg
 
 

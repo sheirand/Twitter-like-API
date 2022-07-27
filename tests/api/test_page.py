@@ -1,12 +1,11 @@
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
-from page.models import Page, Post
+from page.models import Page
 
 
 @pytest.mark.django_db
 def test_user_create_page(client, user_token, page_public):
-
     response = client.post('/api/v1/pages/', page_public,
                            HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
@@ -22,7 +21,6 @@ def test_user_create_page(client, user_token, page_public):
 
 @pytest.mark.django_db
 def test_user_get_public_pages(client_with_pages, user_token, page_public):
-
     response = client_with_pages.get('/api/v1/pages/',
                                      HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
@@ -39,7 +37,6 @@ def test_user_get_public_pages(client_with_pages, user_token, page_public):
 @pytest.mark.django_db
 def test_user_retrieve_pages(client_with_pages, page_ids, user_token,
                              page_public, page_private, page_blocked):
-
     response = client_with_pages.get(f'/api/v1/pages/{page_ids["public_page_id"]}/',
                                      HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
@@ -94,7 +91,6 @@ def test_user_can_change_page(client_with_pages, page_ids, user_token):
 
 @pytest.mark.django_db
 def test_user_cant_change_another_user_page(client_with_pages, page_ids, user_token):
-
     response = client_with_pages.patch(f'/api/v1/pages/{page_ids["private_page_id"]}/',
                                        data={"image": "image.jpeg"},
                                        HTTP_AUTHORIZATION=f"{user_token}",
@@ -105,7 +101,6 @@ def test_user_cant_change_another_user_page(client_with_pages, page_ids, user_to
 
 @pytest.mark.django_db
 def test_user_can_delete_his_page(client_with_pages, page_ids, user_token):
-
     page = Page.objects.get(id=page_ids["public_page_id"])
 
     response = client_with_pages.delete(f'/api/v1/pages/{page_ids["public_page_id"]}/',
@@ -117,3 +112,47 @@ def test_user_can_delete_his_page(client_with_pages, page_ids, user_token):
         page.refresh_from_db()
 
 
+@pytest.mark.django_db
+def test_superuser_can_block_page(client_with_pages, page_ids, superuser_token):
+    payload = dict(
+        is_blocked=True
+    )
+
+    response = client_with_pages.patch(f'/api/v1/pages/{page_ids["public_page_id"]}/',
+                                       data=payload,
+                                       HTTP_AUTHORIZATION=f"{superuser_token}",
+                                       format='json')
+
+    assert response.status_code == status.HTTP_200_OK
+
+    data = response.data
+
+    assert data["is_blocked"] == payload["is_blocked"]
+
+
+@pytest.mark.django_db
+def test_user_can_follow_public_page(client_with_pages, user, user_token, page_ids):
+    response = client_with_pages.get(f'/api/v1/pages/{page_ids["another_public_page_id"]}/follow/',
+                                     HTTP_AUTHORIZATION=f"{user_token}")
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    data = response.data
+
+    assert data["detail"] == "You now follow this page"
+    assert Page.objects.filter(id=page_ids["another_public_page_id"],
+                               followers=user).exists()
+
+
+@pytest.mark.django_db
+def test_user_can_follow_private_page(client_with_pages, user_token, page_ids, user):
+    response = client_with_pages.get(f'/api/v1/pages/{page_ids["another_private_page_id"]}/follow/',
+                                     HTTP_AUTHORIZATION=f"{user_token}")
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    data = response.data
+
+    assert data["detail"] == "Your follow request is waiting to be accepted"
+    assert Page.objects.filter(id=page_ids["another_private_page_id"],
+                               follow_requests=user).exists()

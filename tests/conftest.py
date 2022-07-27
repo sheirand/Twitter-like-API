@@ -17,6 +17,17 @@ def user():
 
 
 @pytest.fixture
+def another_user():
+    payload = dict(
+        email="harry_potter@hogwarts.com",
+        password="flipendo"
+    )
+    user = User.objects.create_user(**payload)
+
+    return user
+
+
+@pytest.fixture
 def blocked_user():
     payload = dict(
         email="talrasha@diablo.com",
@@ -70,6 +81,17 @@ def user_token(client, user):
 
 
 @pytest.fixture
+def another_user_token(client, another_user):
+
+    response = client.post("/api/v1/user/login/", data={"email": another_user.email,
+                                                        "password": "flipendo"})
+
+    token = response.data["token"]
+
+    return token
+
+
+@pytest.fixture
 def superuser_token(client, superuser):
 
     response = client.post("/api/v1/user/login/", data={"email": superuser.email,
@@ -93,6 +115,32 @@ def page_public():
 
 
 @pytest.fixture
+def another_private_page():
+    page = dict(
+        title="Harry Potter fans home",
+        description="Hi there! Here we can discuss latest news about HP universe",
+        tags=["HP"],
+        image="image-path/image.png",
+        is_private=True
+    )
+
+    return page
+
+
+@pytest.fixture
+def another_public_page():
+    page = dict(
+        title="World of warcraft",
+        description="The place for all Azeroth warriors",
+        tags=["WOW", "blizzard"],
+        image="image-path/wow.jpg",
+        is_private=False
+    )
+
+    return page
+
+
+@pytest.fixture
 def page_private(page_public):
 
     private_page = page_public.copy()
@@ -111,7 +159,9 @@ def page_blocked(page_public):
 
 
 @pytest.fixture
-def client_with_pages(client, user_token, superuser_token, page_public, page_private, page_blocked):
+def client_with_pages(client, user_token, superuser_token, another_user_token,
+                      page_public, page_private, page_blocked, another_private_page,
+                      another_public_page):
 
     client.post('/api/v1/pages/', page_public,
                 HTTP_AUTHORIZATION=f"{user_token}", format='json')
@@ -121,6 +171,12 @@ def client_with_pages(client, user_token, superuser_token, page_public, page_pri
 
     client.post('/api/v1/pages/', page_blocked,
                 HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
+
+    client.post('/api/v1/pages/', another_private_page,
+                HTTP_AUTHORIZATION=f"{another_user_token}", format='json')
+
+    client.post('/api/v1/pages/', another_public_page,
+                HTTP_AUTHORIZATION=f"{another_user_token}", format='json')
 
     return client
 
@@ -134,13 +190,15 @@ def page_ids(client_with_pages, superuser_token):
     public_page_id = response.data[0]['id']
     private_page_id = response.data[1]['id']
     blocked_page_id = response.data[2]['id']
+    another_private_page_id = response.data[3]['id']
+    another_public_page_id = response.data[4]['id']
 
     page_ids = dict(
         public_page_id=public_page_id,
         private_page_id=private_page_id,
         blocked_page_id=blocked_page_id,
+        another_private_page_id=another_private_page_id,
+        another_public_page_id=another_public_page_id
     )
 
     return page_ids
-
-
