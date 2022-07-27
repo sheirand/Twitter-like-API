@@ -123,3 +123,24 @@ def client_with_pages(client, user_token, superuser_token, page_public, page_pri
                 HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
 
     return client
+
+
+@pytest.fixture
+def page_ids(client_with_pages, superuser_token):
+
+    response = client_with_pages.get('/api/v1/pages/',
+                                     HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
+
+    public_page_id = response.data[0]['id']
+    private_page_id = response.data[1]['id']
+    blocked_page_id = response.data[2]['id']
+
+    page_ids = dict(
+        public_page_id=public_page_id,
+        private_page_id=private_page_id,
+        blocked_page_id=blocked_page_id,
+    )
+
+    return page_ids
+
+
