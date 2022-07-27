@@ -78,3 +78,48 @@ def superuser_token(client, superuser):
     token = response.data["token"]
 
     return token
+
+
+@pytest.fixture
+def page_public():
+    page = dict(
+        title="Star Wars fandom",
+        description="Hi there! Here we can discuss latest news about SW universe",
+        tags=["SW", "jedi"],
+        image="image-path/image.png",
+        is_private=False
+    )
+    return page
+
+
+@pytest.fixture
+def page_private(page_public):
+
+    private_page = page_public.copy()
+    private_page['is_private'] = True
+
+    return private_page
+
+
+@pytest.fixture
+def page_blocked(page_public):
+
+    blocked_page = page_public.copy()
+    blocked_page['is_blocked'] = True
+
+    return blocked_page
+
+
+@pytest.fixture
+def client_with_pages(client, user_token, superuser_token, page_public, page_private, page_blocked):
+
+    client.post('/api/v1/pages/', page_public,
+                HTTP_AUTHORIZATION=f"{user_token}", format='json')
+
+    client.post('/api/v1/pages/', page_private,
+                HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
+
+    client.post('/api/v1/pages/', page_blocked,
+                HTTP_AUTHORIZATION=f"{superuser_token}", format='json')
+
+    return client
