@@ -18,11 +18,11 @@ class Page(models.Model):
     description = models.TextField(_("Page description"))
     tags = models.ManyToManyField(Tag, related_name='pages')
     owner = models.ForeignKey(User, related_name='pages', on_delete=models.CASCADE)
-    followers = models.ManyToManyField(User, related_name='follows')
+    followers = models.ManyToManyField(User, related_name='follows', blank=True)
     image = models.CharField(max_length=200, null=True, blank=True)
     is_private = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
-    follow_requests = models.ManyToManyField(User, related_name='requests')
+    follow_requests = models.ManyToManyField(User, related_name='requests', blank=True)
     unblock_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
@@ -32,11 +32,11 @@ class Page(models.Model):
 class Post(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
     content = models.CharField(max_length=255)
-    liked_by = models.ManyToManyField(User, related_name='likes')
-    reply_to = models.ForeignKey('Post', on_delete=models.SET_NULL, null=True, related_name='replies')
+    liked_by = models.ManyToManyField(User, related_name='likes', blank=True)
+    reply_to = models.ForeignKey('Post', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='posts')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.pk
+        return str(self.pk)
