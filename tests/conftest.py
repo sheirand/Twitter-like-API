@@ -6,10 +6,10 @@ from user.models import User
 
 @pytest.fixture
 def user():
-    payload = dict(
-        email="bilbo_baggins@shire.com",
-        password="youshallnotpass",
-    )
+    payload = {
+        "email": "bilbo_baggins@shire.com",
+        "password": "youshallnotpass",
+    }
 
     user = User.objects.create_user(**payload)
 
@@ -29,11 +29,11 @@ def another_user():
 
 @pytest.fixture
 def blocked_user():
-    payload = dict(
-        email="talrasha@diablo.com",
-        password="demoninside",
-        is_blocked=True
-    )
+    payload = {
+        "email": "talrasha@diablo.com",
+        "password": "demoninside",
+        "is_blocked": True
+    }
 
     user = User.objects.create_user(**payload)
 
@@ -42,11 +42,11 @@ def blocked_user():
 
 @pytest.fixture
 def user_staff():
-    payload = dict(
-        email="luke_skywalker@starwars.com",
-        password="forcebewithyou",
-        is_staff=True
-    )
+    payload = {
+        "email": "luke_skywalker@starwars.com",
+        "password": "forcebewithyou",
+        "is_staff": True
+    }
 
     user = User.objects.create_user(**payload)
 
@@ -55,10 +55,10 @@ def user_staff():
 
 @pytest.fixture
 def superuser():
-    payload = dict(
-        email="geralt_of_rivia@neverland.com",
-        password="thewitcher",
-    )
+    payload = {
+        "email": "geralt_of_rivia@neverland.com",
+        "password": "thewitcher",
+    }
 
     user = User.objects.create_superuser(**payload)
 

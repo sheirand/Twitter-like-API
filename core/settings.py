@@ -159,4 +159,4 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 
 # Celery (+RabbitMQ)
-CELERY_BROKER_URL = 'amqp://innotter:rabbit@rabbit:5672/'
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")

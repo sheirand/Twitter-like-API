@@ -83,11 +83,11 @@ class PostAPIViewset(viewsets.ModelViewSet):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
 
     def perform_create(self, serializer):
-        serializer.save(page=Page.objects.get(pk=self.kwargs.get('page_id')), created_by=self.request.user)
+        page = PageService.get_page_from_kwargs(self.kwargs)
+        serializer.save(page=page, created_by=self.request.user)
         # get list of followers and send email notification about new posts
-        recipients = Page.objects.get(pk=self.kwargs.get('page_id')).followers.all()
-        emails = [str(email) for email in recipients]
-        send_notification.delay(email_list=emails, page="https://page-link-template.com")
+        recipients = list(page.followers.values_list("email", flat=True))
+        send_notification.delay(email_list=recipients, page="https://page-link-template.com")
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
