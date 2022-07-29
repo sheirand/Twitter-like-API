@@ -7,10 +7,10 @@ from page.models import Page, Post
 class PageService:
 
     @staticmethod
-    def get_page_from_view(view):
-        pk = view.kwargs.get('page_id')
+    def get_page_from_kwargs(kwargs: dict):
+        pk = kwargs.get('page_id')
         if not pk:
-            pk = view.kwargs.get('pk')
+            pk = kwargs.get('pk')
         try:
             page = Page.objects.get(id=pk)
         except ObjectDoesNotExist:
@@ -43,8 +43,8 @@ class PostService:
         return posts
 
     @staticmethod
-    def like_unlike_toggle(post, request) -> str:
-        if request.user not in post.liked_by.all():
+    def like_unlike_toggle(request, pk, post) -> str:
+        if not Post.objects.filter(id=pk, liked_by=request.user).exists():
             post.liked_by.add(request.user)
             msg = "You like this post"
             return msg
