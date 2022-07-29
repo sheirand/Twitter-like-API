@@ -18,10 +18,10 @@ def user():
 
 @pytest.fixture
 def another_user():
-    payload = dict(
-        email="harry_potter@hogwarts.com",
-        password="flipendo"
-    )
+    payload = {
+        "email": "harry_potter@hogwarts.com",
+        "password": "flipendo"
+    }
     user = User.objects.create_user(**payload)
 
     return user
@@ -72,9 +72,11 @@ def client():
 
 @pytest.fixture
 def user_token(client, user):
-
-    response = client.post("/api/v1/user/login/", data={"email": user.email,
-                                                        "password": "youshallnotpass"})
+    payload = {
+        "email": user,
+        "password": "youshallnotpass"
+    }
+    response = client.post("/api/v1/user/login/", data=payload)
     token = response.data["token"]
 
     return token
@@ -82,9 +84,11 @@ def user_token(client, user):
 
 @pytest.fixture
 def another_user_token(client, another_user):
-
-    response = client.post("/api/v1/user/login/", data={"email": another_user.email,
-                                                        "password": "flipendo"})
+    payload = {
+        "email": another_user,
+        "password": "flipendo"
+    }
+    response = client.post("/api/v1/user/login/", data=payload)
 
     token = response.data["token"]
 
@@ -93,9 +97,11 @@ def another_user_token(client, another_user):
 
 @pytest.fixture
 def superuser_token(client, superuser):
-
-    response = client.post("/api/v1/user/login/", data={"email": superuser.email,
-                                                        "password": "thewitcher"})
+    payload = {
+        "email": superuser,
+        "password": "thewitcher"
+    }
+    response = client.post("/api/v1/user/login/", data=payload)
 
     token = response.data["token"]
 
@@ -104,38 +110,39 @@ def superuser_token(client, superuser):
 
 @pytest.fixture
 def page_public():
-    page = dict(
-        title="Star Wars fandom",
-        description="Hi there! Here we can discuss latest news about SW universe",
-        tags=["SW", "jedi"],
-        image="image-path/image.png",
-        is_private=False
-    )
+    page = {
+        "title": "Star Wars fandom",
+        "description": "Hi there! Here we can discuss latest news about SW universe",
+        "tags": ["SW", "jedi"],
+        "image": "image-path/image.png",
+        "is_private": False
+    }
+
     return page
 
 
 @pytest.fixture
 def another_private_page():
-    page = dict(
-        title="Harry Potter fans home",
-        description="Hi there! Here we can discuss latest news about HP universe",
-        tags=["HP"],
-        image="image-path/image.png",
-        is_private=True
-    )
+    page = {
+        "title": "Harry Potter fans home",
+        "description": "Hi there! Here we can discuss latest news about HP universe",
+        "tags": ["HP"],
+        "image": "image-path/image.png",
+        "is_private": True
+    }
 
     return page
 
 
 @pytest.fixture
 def another_public_page():
-    page = dict(
-        title="World of warcraft",
-        description="The place for all Azeroth warriors",
-        tags=["WOW", "blizzard"],
-        image="image-path/wow.jpg",
-        is_private=False
-    )
+    page = {
+        "title": "World of warcraft",
+        "description": "The place for all Azeroth warriors",
+        "tags": ["WOW", "blizzard"],
+        "image": "image-path/wow.jpg",
+        "is_private": False
+    }
 
     return page
 
@@ -193,13 +200,13 @@ def page_ids(client_with_pages, superuser_token):
     another_private_page_id = response.data[3]['id']
     another_public_page_id = response.data[4]['id']
 
-    page_ids = dict(
-        public_page_id=public_page_id,
-        private_page_id=private_page_id,
-        blocked_page_id=blocked_page_id,
-        another_private_page_id=another_private_page_id,
-        another_public_page_id=another_public_page_id
-    )
+    page_ids = {
+        "public_page_id": public_page_id,
+        "private_page_id": private_page_id,
+        "blocked_page_id": blocked_page_id,
+        "another_private_page_id": another_private_page_id,
+        "another_public_page_id": another_public_page_id
+    }
 
     return page_ids
 
