@@ -2,6 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from user.models import User
+from user.choises import Roles
 
 
 @pytest.fixture
@@ -45,7 +46,7 @@ def user_staff():
     payload = {
         "email": "luke_skywalker@starwars.com",
         "password": "forcebewithyou",
-        "is_staff": True
+        "role": Roles.MODERATOR
     }
 
     user = User.objects.create_user(**payload)
@@ -87,6 +88,19 @@ def another_user_token(client, another_user):
     payload = {
         "email": another_user,
         "password": "flipendo"
+    }
+    response = client.post("/api/v1/user/login/", data=payload)
+
+    token = response.data["token"]
+
+    return token
+
+
+@pytest.fixture
+def moderator_token(client, user_staff):
+    payload = {
+        "email": "luke_skywalker@starwars.com",
+        "password": "forcebewithyou",
     }
     response = client.post("/api/v1/user/login/", data=payload)
 
@@ -221,3 +235,77 @@ def client_with_pages_and_followers(client_with_pages, user_token, page_ids):
                           HTTP_AUTHORIZATION=f"{user_token}", format='json')
 
     return client_with_pages
+
+
+@pytest.fixture
+def first_post():
+    post = {
+        "content": "First post",
+    }
+
+    return post
+
+
+@pytest.fixture
+def client_with_first_post(client_with_pages_and_followers, user_token, page_ids, first_post):
+
+    client_with_pages_and_followers.post(f"/api/v1/pages/{page_ids['public_page_id']}/posts/",
+                                         data=first_post,
+                                         HTTP_AUTHORIZATION=f"{user_token}",
+                                         format='json')
+
+    return client_with_pages_and_followers
+
+
+@pytest.fixture
+def first_post_id(client_with_first_post, user_token, page_ids):
+
+    response = client_with_first_post.get(f"/api/v1/pages/{page_ids['public_page_id']}/posts/",
+                                          HTTP_AUTHORIZATION=f"{user_token}")
+    first_post_id = response.data[0]["id"]
+
+    return first_post_id
+
+
+@pytest.fixture
+def any_other_post(first_post_id):
+    post = {
+        "content": "any other content",
+        "reply_to": first_post_id
+    }
+
+    return post
+
+
+@pytest.fixture
+def demo_client(client_with_first_post, page_ids, user_token,
+                another_user_token, superuser_token, any_other_post):
+
+    client = client_with_first_post
+    # posts on users public page
+    client.post(f"/api/v1/pages/{page_ids['public_page_id']}/posts/",
+                data=any_other_post,
+                HTTP_AUTHORIZATION=f"{user_token}",
+                format='json')
+
+    # posts on another user's page
+    client.post(f"/api/v1/pages/{page_ids['another_public_page_id']}/posts/",
+                data=any_other_post,
+                HTTP_AUTHORIZATION=f"{another_user_token}",
+                format='json')
+    client.post(f"/api/v1/pages/{page_ids['another_public_page_id']}/posts/",
+                data=any_other_post,
+                HTTP_AUTHORIZATION=f"{another_user_token}",
+                format='json')
+    # posts on private another user's page
+    client.post(f"/api/v1/pages/{page_ids['another_private_page_id']}/posts/",
+                data=any_other_post,
+                HTTP_AUTHORIZATION=f"{another_user_token}",
+                format='json')
+    # posts on blocked page
+    client.post(f"/api/v1/pages/{page_ids['blocked_page_id']}/posts/",
+                data=any_other_post,
+                HTTP_AUTHORIZATION=f"{superuser_token}",
+                format='json')
+
+    return client

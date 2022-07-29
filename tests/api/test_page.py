@@ -116,14 +116,14 @@ def test_user_can_delete_his_page(client_with_pages, page_ids, user_token):
 
 
 @pytest.mark.django_db
-def test_superuser_can_block_page(client_with_pages, page_ids, superuser_token):
+def test_moderator_can_block_page(client_with_pages, page_ids, moderator_token):
     payload = {
         "is_blocked": True
     }
 
     response = client_with_pages.patch(f'/api/v1/pages/{page_ids["public_page_id"]}/',
                                        data=payload,
-                                       HTTP_AUTHORIZATION=f"{superuser_token}",
+                                       HTTP_AUTHORIZATION=f"{moderator_token}",
                                        format='json')
 
     data = response.data
