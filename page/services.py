@@ -14,7 +14,8 @@ class PageService:
         if not pk:
             pk = kwargs.get('pk')
         try:
-            page = Page.objects.get(id=pk)
+            page = Page.objects.prefetch_related('followers').\
+                select_related('owner').get(id=pk)
         except ObjectDoesNotExist:
             raise exceptions.NotFound()
         return page

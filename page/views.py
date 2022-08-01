@@ -14,7 +14,9 @@ from page.tasks import send_notification
 
 class PageAPIViewset(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, PageBasic)
-    queryset = Page.objects.all()
+    queryset = Page.objects.all()\
+        .prefetch_related("followers", "tags", "follow_requests")\
+        .select_related("owner")
     filter_backends = (filters.SearchFilter,)
     search_fields = ("title", "uniq_id", "tags__name",)
 
@@ -114,4 +116,5 @@ class FeedAPIViewset(mixins.ListModelMixin,
     def get_queryset(self):
         return Post.objects.filter(page__followers=self.request.user.id,
                                    page__owner__is_blocked=False,
-                                   page__is_blocked=False).order_by('-created_at')
+                                   page__is_blocked=False).order_by('-created_at').prefetch_related("liked_by").\
+            select_related("page", "created_by", "reply_to")
