@@ -88,7 +88,7 @@ class PostAPIViewset(viewsets.ModelViewSet):
         serializer.save(page=page, created_by=self.request.user)
         # get list of followers and send email notification about new posts
         recipients = list(page.followers.values_list("email", flat=True))
-        # send_notification.delay(email_list=recipients, page="https://page-link-template.com")
+        send_notification.delay(email_list=recipients, page="https://page-link-template.com")
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
