@@ -309,3 +309,14 @@ def demo_client(client_with_first_post, page_ids, user_token,
                 format='json')
 
     return client
+
+
+@pytest.fixture
+def any_other_post_id(demo_client, superuser_token, page_ids):
+
+    response = demo_client.get(f'/api/v1/pages/{page_ids["another_public_page_id"]}/posts/',
+                               HTTP_AUTHORIZATION=f"{superuser_token}")
+    any_other_post_id = response.data[0]["id"]
+    return any_other_post_id
+
+

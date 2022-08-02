@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from page.models import Page, Post
-from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic, UserIsBanned
+from page.permissions import AllowFollowers, IsOwnerOrStaff, PageBlocked, PageBasic
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
     PageExtendedSerializer, PostRepliesSerializer
 from page.services import PageService, PostService
@@ -77,9 +77,8 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
 class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrStaff |
-                          AllowFollowers | ReadonlyIfPublic |
-                          UserIsBanned | PageBlocked)
+    permission_classes = (IsAuthenticated, PageBlocked,
+                          IsOwnerOrStaff | AllowFollowers,)
 
     def get_queryset(self):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
@@ -89,7 +88,7 @@ class PostAPIViewset(viewsets.ModelViewSet):
         serializer.save(page=page, created_by=self.request.user)
         # get list of followers and send email notification about new posts
         recipients = list(page.followers.values_list("email", flat=True))
-        send_notification.delay(email_list=recipients, page="https://page-link-template.com")
+        # send_notification.delay(email_list=recipients, page="https://page-link-template.com")
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')

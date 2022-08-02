@@ -49,10 +49,10 @@ class PostService:
     def like_unlike_toggle(request, pk, post) -> str:
         if not Post.objects.filter(id=pk, liked_by=request.user).exists():
             post.liked_by.add(request.user)
-            msg = "You like this post"
+            msg = {"detail": "You like this post"}
             return msg
         post.liked_by.remove(request.user)
-        msg = "You dont like this post"
+        msg = {"detail": "You dont like this post"}
         return msg
 
     @staticmethod
