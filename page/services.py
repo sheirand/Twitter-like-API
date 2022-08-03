@@ -40,7 +40,9 @@ class PostService:
 
     @staticmethod
     def get_visible_replies(pk):
-        posts = Post.objects.filter(reply_to=pk, page__owner__is_blocked=False, page__is_blocked=False)
+        posts = Post.objects.filter(reply_to=pk, page__owner__is_blocked=False, page__is_blocked=False).\
+            prefetch_related("liked_by", "reply_to__liked_by").\
+            select_related("page", "reply_to", "created_by", "reply_to__created_by", "reply_to__page")
         if not posts:
             raise exceptions.NotFound()
         return posts
