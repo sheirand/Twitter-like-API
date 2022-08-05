@@ -1,5 +1,7 @@
 from rest_framework import exceptions
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.core.mail import send_mail
 
 from page.models import Page, Post
 
@@ -51,3 +53,14 @@ class PostService:
         post.liked_by.remove(request.user)
         msg = "You dont like this post"
         return msg
+
+    @staticmethod
+    def send_email(emails_list: list, msg: str):
+        """ Email notification for new post on followed page"""
+        send_mail(
+            "Notification from Innotter!",
+            msg,
+            settings.EMAIL_HOST_USER,
+            emails_list,
+            fail_silently=False
+        )
