@@ -1,5 +1,5 @@
 import datetime
-
+import pytz
 import jwt
 
 from django.conf import settings
@@ -13,7 +13,7 @@ from user.models import User
 import logging
 
 logger = logging.getLogger(__name__)
-
+utc = pytz.UTC
 
 class JWTService:
 
@@ -88,9 +88,10 @@ class UserService:
         """Service for unbanning user
         Return True if user ban expired or
         user is not banned, False otherwise"""
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.utcnow().replace(tzinfo=utc)
         ban_end = user.blocked_to
-
+        if ban_end:
+            ban_end.replace(tzinfo=utc)
         if user.is_blocked and not ban_end:
             raise exceptions.NotAuthenticated(
                 f"This user is blocked permanently"
