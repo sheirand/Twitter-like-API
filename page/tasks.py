@@ -3,7 +3,7 @@ from page.services import PostService
 
 
 @app.task
-def send_notification(email_list: list, page: str):
+def send_notification(email_list: list, msg: str):
     """Email notification task for Celery"""
-    PostService.send_email(email_list, page)
+    PostService.send_email(email_list, msg)
 

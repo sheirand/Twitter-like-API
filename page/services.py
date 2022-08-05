@@ -58,11 +58,11 @@ class PostService:
         return msg
 
     @staticmethod
-    def send_email(emails_list: list, page: str):
+    def send_email(emails_list: list, msg: str):
         """ Email notification for new post on followed page"""
         send_mail(
             "Notification from Innotter!",
-            f"Dont forget to checkout new posts on Page {page}!\n\nBest regards, Innotter team",
+            msg,
             settings.EMAIL_HOST_USER,
             emails_list,
             fail_silently=False
