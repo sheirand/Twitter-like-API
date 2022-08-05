@@ -15,6 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 utc = pytz.UTC
 
+
 class JWTService:
 
     @staticmethod
@@ -63,7 +64,7 @@ class UserService:
     @staticmethod
     def authenticate(email: str = None, password: str = None) -> "User":
 
-        user = models.User.objects.filter(email=email).first()
+        user = models.User.objects.get(email=email)
 
         if user is None:
             raise exceptions.AuthenticationFailed("Invalid Credentials")

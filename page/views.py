@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from page.models import Page, Post
-from page.permissions import AllowFollowers, IsOwnerOrStaff, ReadonlyIfPublic, PageBlocked, PageBasic, UserIsBanned
+from page.permissions import AllowFollowers, IsOwnerOrStaff, PageBlocked, PageBasic
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
     PageExtendedSerializer, PostRepliesSerializer
 from page.services import PageService, PostService
@@ -14,7 +14,9 @@ from page.tasks import send_notification
 
 class PageAPIViewset(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, PageBasic)
-    queryset = Page.objects.all()
+    queryset = Page.objects.all()\
+        .prefetch_related("followers", "tags", "follow_requests")\
+        .select_related("owner")
     filter_backends = (filters.SearchFilter,)
     search_fields = ("title", "uniq_id", "tags__name",)
 
@@ -75,9 +77,8 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
 class PostAPIViewset(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrStaff |
-                          AllowFollowers | ReadonlyIfPublic |
-                          UserIsBanned | PageBlocked)
+    permission_classes = (IsAuthenticated, PageBlocked,
+                          IsOwnerOrStaff | AllowFollowers,)
 
     def get_queryset(self):
         return Post.objects.filter(page=self.kwargs.get('page_id'))
@@ -117,4 +118,5 @@ class FeedAPIViewset(mixins.ListModelMixin,
     def get_queryset(self):
         return Post.objects.filter(page__followers=self.request.user.id,
                                    page__owner__is_blocked=False,
-                                   page__is_blocked=False).order_by('-created_at')
+                                   page__is_blocked=False).order_by('-created_at').prefetch_related("liked_by").\
+            select_related("page", "created_by", "reply_to")

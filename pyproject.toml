@@ -17,6 +17,7 @@ pytest = "^7.1.2"
 pytest-django = "^4.5.2"
 celery = "^5.2.7"
 flower = "^1.1.0"
+pytest-xdist = "^2.5.0"
 
 [tool.poetry.dev-dependencies]
 

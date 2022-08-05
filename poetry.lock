@@ -253,6 +253,17 @@ uritemplate = ">=3.0.0"
 validation = ["swagger-spec-validator (>=2.1.0)"]
 
 [[package]]
+name = "execnet"
+version = "1.9.0"
+description = "execnet: rapid multi-Python deployment"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.extras]
+testing = ["pre-commit"]
+
+[[package]]
 name = "flower"
 version = "1.1.0"
 description = "Celery Flower"
@@ -483,6 +494,36 @@ docs = ["sphinx", "sphinx-rtd-theme"]
 testing = ["django", "django-configurations (>=2.0)"]
 
 [[package]]
+name = "pytest-forked"
+version = "1.4.0"
+description = "run tests in isolated forked subprocesses"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+py = "*"
+pytest = ">=3.10"
+
+[[package]]
+name = "pytest-xdist"
+version = "2.5.0"
+description = "pytest xdist plugin for distributed testing and loop-on-failing modes"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+execnet = ">=1.1"
+pytest = ">=6.2.0"
+pytest-forked = "*"
+
+[package.extras]
+psutil = ["psutil (>=3.0)"]
+setproctitle = ["setproctitle"]
+testing = ["filelock"]
+
+[[package]]
 name = "python-dotenv"
 version = "0.20.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -622,7 +663,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "33135abefa79083da813d419519f3e00264f8e2e4600ce5df8c49aa641fb84a3"
+content-hash = "33aaea7db9945f0fb832d2031f15a0faccc6d7b8d2215bafd1a55dfc54b49a5e"
 
 [metadata.files]
 amqp = []
@@ -667,6 +708,7 @@ drf-yasg = [
     {file = "drf-yasg-1.20.0.tar.gz", hash = "sha256:d50f197c7f02545d0b736df88c6d5cf874f8fea2507ad85ad7de6ae5bf2d9e5a"},
     {file = "drf_yasg-1.20.0-py2.py3-none-any.whl", hash = "sha256:8b72e5b1875931a8d11af407be3a9a5ba8776541492947a0df5bafda6b7f8267"},
 ]
+execnet = []
 flower = []
 humanize = []
 idna = [
@@ -760,6 +802,8 @@ pyparsing = [
 ]
 pytest = []
 pytest-django = []
+pytest-forked = []
+pytest-xdist = []
 python-dotenv = [
     {file = "python-dotenv-0.20.0.tar.gz", hash = "sha256:b7e3b04a59693c42c36f9ab1cc2acc46fa5df8c78e178fc33a8d4cd05c8d498f"},
     {file = "python_dotenv-0.20.0-py3-none-any.whl", hash = "sha256:d92a187be61fe482e4fd675b6d52200e7be63a12b724abbf931a40ce4fa92938"},
