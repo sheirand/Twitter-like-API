@@ -1,6 +1,5 @@
-from django.utils.functional import SimpleLazyObject
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, filters, exceptions, mixins, status
+from rest_framework import viewsets, filters, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,7 +7,7 @@ from page.models import Page, Post
 from page.permissions import AllowFollowers, IsOwnerOrStaff, PageBlocked, PageBasic
 from page.serializers import PageSerializer, PostSerializer, FollowerSerializer, RequestSerializer, \
     PageExtendedSerializer, PostRepliesSerializer
-from page.services import PageService, PostService
+from page.services import PageService, PostService, StatsService
 from page.tasks import send_notification
 
 
@@ -27,6 +26,13 @@ class PageAPIViewset(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        # publish data to stats microservice
+        StatsService.publish_page_creation(page_id=serializer.data["id"],
+                                           user_id=serializer.data["owner"]["id"])
+
+    def perform_destroy(self, instance):
+        StatsService.publish_page_delete(instance.id)
+        super().perform_destroy(instance)
 
     @swagger_auto_schema(responses={
         202: '{"detail": "Your follow request is waiting to be accepted"}',
@@ -92,6 +98,8 @@ class PostAPIViewset(viewsets.ModelViewSet):
                   f" Page https://innotter/api/v1/pages/{page.id}/ !" \
                   f"\n\nBest regards, Innotter team"
         send_notification.delay(email_list=recipients, msg=message)
+        # publish data to stats microservice
+        StatsService.publish_post_creation(page.id)
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
