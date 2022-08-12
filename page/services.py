@@ -32,12 +32,12 @@ class PageService:
             page.followers.add(request.user)
             msg = {"detail": "You now follow this page"}
             # publish data to stats microservice
-            StatsService.publish_new_follower(page.id)
+            StatsService.publish_new_followers(page.id)
             return msg
         page.followers.remove(request.user)
         msg = {"detail": "You are no longer follow this page"}
         # publish data to stats microservice
-        StatsService.publish_remove_follower(page.id)
+        StatsService.publish_remove_followers(page.id)
         return msg
 
 
