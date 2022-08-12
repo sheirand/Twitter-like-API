@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from core.producer import publish
 from page.models import Page, User, Post, Tag
 from page.services import StatsService
 from user.serializers import NestedUserSerializer

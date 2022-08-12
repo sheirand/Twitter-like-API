@@ -2,7 +2,7 @@ from rest_framework import exceptions
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.mail import send_mail
-from core.producer import publish
+from core.producer import PikaClient
 
 from page.models import Page, Post
 
@@ -78,38 +78,41 @@ class PostService:
 
 class StatsService:
     """Service for producing messages to Stats microservice"""
-    @staticmethod
-    def publish_page_creation(page_id, user_id):
+
+    __client = PikaClient()
+
+    @classmethod
+    def publish_page_creation(cls, page_id, user_id):
         data = {"id": page_id,
                 "user_id": user_id}
-        publish("page created", data)
+        cls.__client.publish("page created", data)
 
-    @staticmethod
-    def publish_new_followers(page_id, num=1):
+    @classmethod
+    def publish_new_followers(cls, page_id, num=1):
         data = {"id": page_id, "num": num}
-        publish("add followers", data)
+        cls.__client.publish("add followers", data)
 
-    @staticmethod
-    def publish_remove_followers(page_id, num=1):
+    @classmethod
+    def publish_remove_followers(cls, page_id, num=1):
         data = {"id": page_id, "num": num}
-        publish("remove followers", data)
+        cls.__client.publish("remove followers", data)
 
-    @staticmethod
-    def publish_post_creation(page_id):
+    @classmethod
+    def publish_post_creation(cls, page_id):
         data = {"id": page_id}
-        publish("new post", data)
+        cls.__client.publish("new post", data)
 
-    @staticmethod
-    def publish_like(page_id):
+    @classmethod
+    def publish_like(cls, page_id):
         data = {"id": page_id}
-        publish("like", data)
+        cls.__client.publish("like", data)
 
-    @staticmethod
-    def publish_unlike(page_id):
+    @classmethod
+    def publish_unlike(cls, page_id):
         data = {"id": page_id}
-        publish("unlike", data)
+        cls.__client.publish("unlike", data)
 
-    @staticmethod
-    def publish_page_delete(page_id):
+    @classmethod
+    def publish_page_delete(cls, page_id):
         data = {"id": page_id}
-        publish("page deleted", data)
+        cls.__client.publish("page deleted", data)
