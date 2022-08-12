@@ -12,6 +12,8 @@ services:
       - "8000"
     env_file:
       - .env
+    networks:
+      - rabbitmq
     depends_on:
       - db
   db:
@@ -24,14 +26,23 @@ services:
       - /data/postgres:/var/lib/postgresql/data/
     env_file:
       - .env
+    networks:
+      - rabbitmq
   rabbit:
-    image: rabbitmq:latest
+    image: rabbitmq:3.10.7-management-alpine
     restart: on-failure
+    container_name: rabbit
+    hostname: rabbit
     env_file:
       - .env
     ports:
-      - "5673:5673"
+      - "5672:5672"
       - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+    networks:
+      - rabbitmq
   celery:
     build:
       context: .
@@ -41,6 +52,8 @@ services:
       - rabbit
       - web
     restart: on-failure
+    networks:
+      - rabbitmq
   # flower for celery
   flower:
     build:
@@ -48,8 +61,13 @@ services:
     ports:
       - "5566:5566"
     command: celery -A core flower  --address=0.0.0.0 --port=5566
+    networks:
+      - rabbitmq
     depends_on:
       - celery
 
 volumes:
   postgres_data:
+networks:
+  rabbitmq:
+    external: true
