@@ -81,38 +81,38 @@ class StatsService:
 
     __client = PikaClient()
 
-    @classmethod
-    def publish_page_creation(cls, page_id, user_id):
+    @staticmethod
+    def publish_page_creation(page_id, user_id):
         data = {"id": page_id,
                 "user_id": user_id}
-        cls.__client.publish("page created", data)
+        StatsService.__client.publish("page created", data)
 
-    @classmethod
-    def publish_new_followers(cls, page_id, num=1):
+    @staticmethod
+    def publish_new_followers(page_id, num=1):
         data = {"id": page_id, "num": num}
-        cls.__client.publish("add followers", data)
+        StatsService.__client.publish("add followers", data)
 
-    @classmethod
-    def publish_remove_followers(cls, page_id, num=1):
+    @staticmethod
+    def publish_remove_followers(page_id, num=1):
         data = {"id": page_id, "num": num}
-        cls.__client.publish("remove followers", data)
+        StatsService.__client.publish("remove followers", data)
 
-    @classmethod
-    def publish_post_creation(cls, page_id):
+    @staticmethod
+    def publish_post_creation(page_id):
         data = {"id": page_id}
-        cls.__client.publish("new post", data)
+        StatsService.__client.publish("new post", data)
 
-    @classmethod
-    def publish_like(cls, page_id):
+    @staticmethod
+    def publish_like(page_id):
         data = {"id": page_id}
-        cls.__client.publish("like", data)
+        StatsService.__client.publish("like", data)
 
-    @classmethod
-    def publish_unlike(cls, page_id):
+    @staticmethod
+    def publish_unlike(page_id):
         data = {"id": page_id}
-        cls.__client.publish("unlike", data)
+        StatsService.__client.publish("unlike", data)
 
-    @classmethod
-    def publish_page_delete(cls, page_id):
+    @staticmethod
+    def publish_page_delete(page_id):
         data = {"id": page_id}
-        cls.__client.publish("page deleted", data)
+        StatsService.__client.publish("page deleted", data)
