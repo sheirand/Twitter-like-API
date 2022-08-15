@@ -2,6 +2,7 @@ from rest_framework import exceptions
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.mail import send_mail
+from core.producer import PikaClient
 
 from page.models import Page, Post
 
@@ -30,9 +31,13 @@ class PageService:
                 return msg
             page.followers.add(request.user)
             msg = {"detail": "You now follow this page"}
+            # publish data to stats microservice
+            StatsService.publish_new_followers(page.id)
             return msg
         page.followers.remove(request.user)
         msg = {"detail": "You are no longer follow this page"}
+        # publish data to stats microservice
+        StatsService.publish_remove_followers(page.id)
         return msg
 
 
@@ -48,13 +53,15 @@ class PostService:
         return posts
 
     @staticmethod
-    def like_unlike_toggle(request, pk, post) -> str:
+    def like_unlike_toggle(request, pk, post) -> dict:
         if not Post.objects.filter(id=pk, liked_by=request.user).exists():
             post.liked_by.add(request.user)
             msg = {"detail": "You like this post"}
+            StatsService.publish_like(post.page.id)
             return msg
         post.liked_by.remove(request.user)
         msg = {"detail": "You dont like this post"}
+        StatsService.publish_unlike(post.page.id)
         return msg
 
     @staticmethod
@@ -67,3 +74,45 @@ class PostService:
             emails_list,
             fail_silently=False
         )
+
+
+class StatsService:
+    """Service for producing messages to Stats microservice"""
+
+    __client = PikaClient()
+
+    @staticmethod
+    def publish_page_creation(page_id, user_id):
+        data = {"id": page_id,
+                "user_id": user_id}
+        StatsService.__client.publish("page created", data)
+
+    @staticmethod
+    def publish_new_followers(page_id, num=1):
+        data = {"id": page_id, "num": num}
+        StatsService.__client.publish("add followers", data)
+
+    @staticmethod
+    def publish_remove_followers(page_id, num=1):
+        data = {"id": page_id, "num": num}
+        StatsService.__client.publish("remove followers", data)
+
+    @staticmethod
+    def publish_post_creation(page_id):
+        data = {"id": page_id}
+        StatsService.__client.publish("new post", data)
+
+    @staticmethod
+    def publish_like(page_id):
+        data = {"id": page_id}
+        StatsService.__client.publish("like", data)
+
+    @staticmethod
+    def publish_unlike(page_id):
+        data = {"id": page_id}
+        StatsService.__client.publish("unlike", data)
+
+    @staticmethod
+    def publish_page_delete(page_id):
+        data = {"id": page_id}
+        StatsService.__client.publish("page deleted", data)

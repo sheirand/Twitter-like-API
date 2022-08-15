@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from page.models import Page, User, Post, Tag
+from page.services import StatsService
 from user.serializers import NestedUserSerializer
 
 
@@ -52,6 +54,9 @@ class FollowerSerializer(serializers.ModelSerializer):
         users = validated_data.pop('followers')
         for user in users:
             instance.followers.remove(user)
+        # publish data to stats microservice
+        StatsService.publish_remove_followers(page_id=instance.id,
+                                              num=len(users))
         instance.save()
         return instance
 
@@ -70,6 +75,9 @@ class RequestSerializer(serializers.ModelSerializer):
         for user in users:
             instance.follow_requests.remove(user)
             instance.followers.add(user)
+        # publish data to stats microservice
+        StatsService.publish_new_followers(page_id=instance.id,
+                                           num=len(users))
         instance.save()
         return instance
 

@@ -160,3 +160,11 @@ EMAIL_PORT = os.getenv("EMAIL_PORT")
 
 # Celery (+RabbitMQ)
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+
+# rabbitmq
+
+RABBIT_CONNECTION = os.getenv("RABBITMQ_HOST")
+RABBIT_PORT = os.getenv("RABBITMQ_PORT")
+RABBIT_USER = os.getenv("RABBITMQ_DEFAULT_USER")
+RABBIT_PW = os.getenv("RABBITMQ_DEFAULT_PASS")
+PUBLISH_QUEUE = os.getenv("PUBLISH_QUEUE")
