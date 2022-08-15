@@ -94,7 +94,7 @@ class StatsService:
 
     @staticmethod
     def publish_remove_followers(page_id, num=1):
-        data = {"id": page_id, "num": num}
+        data = {"id": page_id, "num": -num}
         StatsService.__client.publish("remove followers", data)
 
     @staticmethod
