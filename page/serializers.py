@@ -56,7 +56,8 @@ class FollowerSerializer(serializers.ModelSerializer):
             instance.followers.remove(user)
         # publish data to stats microservice
         StatsService.publish_remove_followers(page_id=instance.id,
-                                              num=len(users))
+                                              num=len(users),
+                                              user_id=instance.owner.id)
         instance.save()
         return instance
 
@@ -77,7 +78,8 @@ class RequestSerializer(serializers.ModelSerializer):
             instance.followers.add(user)
         # publish data to stats microservice
         StatsService.publish_new_followers(page_id=instance.id,
-                                           num=len(users))
+                                           num=len(users),
+                                           user_id=instance.owner.id)
         instance.save()
         return instance
 

@@ -31,7 +31,7 @@ class PageAPIViewset(viewsets.ModelViewSet):
                                            user_id=serializer.data["owner"]["id"])
 
     def perform_destroy(self, instance):
-        StatsService.publish_page_delete(instance.id)
+        StatsService.publish_page_delete(instance.id, instance.owner.id)
         super().perform_destroy(instance)
 
     @swagger_auto_schema(responses={
@@ -99,7 +99,7 @@ class PostAPIViewset(viewsets.ModelViewSet):
                   f"\n\nBest regards, Innotter team"
         send_notification.delay(email_list=recipients, msg=message)
         # publish data to stats microservice
-        StatsService.publish_post_creation(page.id)
+        StatsService.publish_post_creation(page.id, self.request.user.id)
 
     @swagger_auto_schema(responses={201: '{"detail": "You like this post | You dont like this post"}'})
     @action(detail=True, methods=("GET",), url_path='like-post-toggle')
