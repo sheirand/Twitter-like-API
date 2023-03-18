@@ -6,7 +6,7 @@
  ## Technologies
 
 ---
- Python, Django, DRF, Postgres, JWT, Celery, RabbitMQ, PyTest, Docker 
+ Python | Django | DRF | Postgres | JWT auth middleware | Celery | RabbitMQ | PyTest | Docker 
 
  ## SUMMARY
 
