@@ -19,9 +19,9 @@
 ---
 
 - **API defaults**:
-    - GET `..api/v1/` - root
-    - POST `../admin/` - enter the django admin panel
-    - GET `../schema/` - API docs (Swagger)
+    - **GET** `..api/v1/` - root
+    - **POST** `../admin/` - enter the django admin panel
+    - **GET** `../schema/` - API docs (Swagger)
 ___
  - **User endpoint:**
     - **GET** `../api/v1/user/`   - list all users (staff only)
