@@ -93,8 +93,9 @@ ___
   - user model
   - page model
   - post model
-- RabbitMQ is used as message broker for Celery 
-- Celery is used for async collecting daily stats and sending it to the StatsMicroservice (my other project) 
+- RabbitMQ is used as message broker for Celery
+- Application is async connected to the StatsMicroservice app for collecting stats (my other project) 
+- Celery is used for async collecting daily stats and sending it to the StatsMicroservice 
 - Flower is added to project for managing Celery tasks
 - Custom User model and manager
 - Authentication and authorization through JWT middleware (token in headers)
