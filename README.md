@@ -31,19 +31,34 @@ ___
     - **PUT** `../api/v1/user/{user_id}/` - change user's info (owner or staff)
     - **PATCH** `../api/v1/user/{user_id}/` - change user's info (owner or staff)
     - **DELETE** `../api/v1/user/{user_id}/` - delete user's profile (owner or staff)
-    - **PUT** `../api/v1/user/{user_id}/change-password/` - change user's password (owner or staff) 
-    - **GET** `../api/v1/user/stats/` - get simple statistics for your account
 ___
- - **Wallet endpoint:**
-    - **GET** `../api/v1/transaction/` - list all user's transactions
-    - **POST** `../api/v1/transaction/` - make new transaction
-    - **GET** `../api/v1/transaction/{id}/` - detailed view on user's transaction
-    - **PUT** `../api/v1/transaction/{id}/` - change user's transaction details
-    - **PATCH** `../api/v1/transaction/{id}/` - change user's transaction details
-    - **DELETE** `../api/v1/transaction/{id}/` - delete user's transaction
-
-Note: this endpoint for authenticated users only
-
+ - **Pages endpoint:**
+    - **GET** `../api/v1/pages/` - list all pages
+    - **POST** `../api/v1/pages/` - make a new page
+    - **GET** `../api/v1/pages/{id}/` - detailed view on the page
+    - **PUT** `../api/v1/pages/{id}/` - change page details
+    - **PATCH** `../api/v1/pages/{id}/` - change page details
+    - **DELETE** `../api/v1/pages/{id}/` - delete page
+    - **PATCH** `../api/v1/pages/{id}/approve-request/` - approve subscribe request for page
+    - **GET** `../api/v1/pages/{id}/follow-requests/` - list all subscribe requests for page
+    - **GET** `../api/v1/pages/{id}/follow/` -follow (subscribe for) the page
+    - **PATCH**`../api/v1/pages/{id}/followers-remove/` - remove the followers
+    - **GET** `../api/v1/pages/{id}/followers/` - list all page subscribers
+ ___
+ - **Posts endpoint:**
+    - **GET** `../api/v1/pages/{id}/posts/` - list all posts of the page
+    - **POST** `../api/v1/pages/{id}/posts/` - make a new post on the page
+    - **GET** `../api/v1/pages/{id}/posts/{id}/` - get the post
+    - **PUT** `../api/v1/pages/{id}/posts/{id}/` - change the post
+    - **PATCH** `../api/v1/pages/{id}/posts/{id}/` - change the post
+    - **DELETE** `../api/v1/pages/{id}/posts/{id}/` - delete the post
+    - **GET** `../api/v1/pages/{id}/posts/{id}/like-post-toggle/` - like/unlike the post
+    - **GET** `../api/v1/pages/{id}/posts/{id}/replies/` - see the post's replies (thread)
+ ___
+ - **Feed endpoint:**
+    - **GET** `../api/v1/feed/` - list all posts from the followed pages
+    - **GET** `../api/v1/feed/{id}/` - get particular post from the followed pages
+    
 ## Quickstart:
 - git clone the project
  
