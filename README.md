@@ -6,12 +6,12 @@
  ## Technologies
 
 ---
- Python | Django | DRF | Postgres | JWT auth middleware | Celery | RabbitMQ | PyTest | Docker 
+ Python | Django | DRF | Postgres | JWT auth middleware | Celery | RabbitMQ | PyTest | Docker |
 
  ## SUMMARY
 
 ---
- This API is created in educational purpose. Here i tried to reproduce the functionality of the Twitter app.
+ This API is created in educational purpose. Here i tried to reproduce the functionality of the Twitter app. This API is connected to my another project StatsMicroservice which collects simple statistics about followers, likes etc.
 
 
  ## API Schema
