@@ -11,7 +11,7 @@
  ## SUMMARY
 
 ---
- This API is created in educational purpose. Here i tried to reproduce the functionality of of Twitter app.
+ This API is created in educational purpose. Here i tried to reproduce the functionality of the Twitter app.
 
 
  ## API Schema
