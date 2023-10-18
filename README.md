@@ -61,11 +61,7 @@ ___
     
 ## Quickstart:
 - git clone the project
- 
-      gh repo clone sheirand/Twitter-like-API
-      
-- or
-    
+
       git clone https://github.com/sheirand/Twitter-like-API
 
 - add everything needed to the .env file
