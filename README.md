@@ -11,7 +11,7 @@
  ## SUMMARY
 
 ---
- This API is created in educational purpose. Here i tried to reproduce the functionality of the Twitter app. This API is connected to my another project StatsMicroservice which collects simple statistics about followers, likes etc.
+ This API is created for educational purposes. Here I tried to reproduce the functionality of the Twitter app. This API is connected to my another project StatsMicroservice which collects simple statistics about followers, likes etc.
 
 
  ## API Schema
